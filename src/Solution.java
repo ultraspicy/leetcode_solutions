@@ -4,7 +4,49 @@ public class Solution {
 
     int M = 1000000000 + 7;
 
+    public int findMinimumTime(int[][] tasks) {
+        Arrays.sort(tasks, (o1, o2) -> {
+            if (o1[1] -o2[1] == 0) return o1[0] - o2[0];
+            return o1[1] - o2[1];
+        });
+        int[] done = new int[2001];
 
+        int ret = 0;
+        for(int i = 0; i < tasks.length; i++) {
+            int[] task = tasks[i];
+            int start = task[0], end = task[1], remain = task[2];
+            // first calculate how many tasks have been done
+            for(int j = end; j >= start && remain > 0; j--) {
+                if(done[j] == -1) remain--;
+            }
+            // update number line
+            for(int j = end; j >= start && remain > 0; j--) { {
+                if(done[j] != -1) {
+                    done[j] = -1;
+                    ret++;
+                    remain--;
+                }
+            }}
+        }
+        return ret;
+    }
+
+    public int maximizeGreatness(int[] nums) {
+        TreeMap<Integer, Integer> occurrence = new TreeMap<>();
+        for(int num : nums) {
+            occurrence.put(num, occurrence.getOrDefault(num, 0) + 1);
+        }
+        Arrays.sort(nums);
+        int ret = 0;
+        for(int num: nums) {
+            if (occurrence.higherKey(num) == null || occurrence.get(occurrence.higherKey(num)) == 0) continue;
+            int key = occurrence.higherKey(num);
+            occurrence.put(key, occurrence.get(key) - 1);
+            if (occurrence.get(key) == 0) occurrence.remove(key);
+            ret++;
+        }
+        return ret;
+    }
 
     public static void main(String[] args) {
         Solution solution = new Solution();
@@ -16,27 +58,14 @@ public class Solution {
 
         String start = "hit", end = "cog";
         Set<String> dict = new HashSet<>(Arrays.asList("hot","dot","dog","lot","log"));
-        int[][] roads = new int[][]{
-                {1, 2, 9},
-                {2, 3, 1},
-                {3, 4, 9},
-                {4, 5, 4},
-                {2, 4, 3},
-                {1, 3, 2},
-                {5, 4, 9}
+        //[[8,19,1],[3,20,1],[1,20,2],[6,13,3]]
+        int[][] tasks = new int[][]{
+                {6, 20, 3}
         };
-        int[][] input = new int[][]{{2},{3,4},{6,5,7},{4,1,8,3}};
-        boolean[][] grid = new boolean[3][4];
-
-        TreeNode node1 = new TreeNode(1);
-        TreeNode node2 = new TreeNode(2);
-        TreeNode node3 = new TreeNode(3);
-        node1.left = node2;
-        node1.right = node3;
-
-        int[] ar = new int[]{1, 2, 3};
-
-        System.out.println(solution.largestDivisibleSubsetII(new int[]{1,2,3}));
+        // [[1,10,7],[4,11,1],[3,19,7],[10,15,2]]
+        // [[4,20,10],[1,20,5]]
+        int[] array = new int[]{1,3,5,2,1,3,1};
+        System.out.println(solution.maximizeGreatness(array));
     }
 
     public List<Integer> largestDivisibleSubsetII(int[] nums) {
