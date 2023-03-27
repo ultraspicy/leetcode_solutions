@@ -31,19 +31,169 @@ public class Solution {
         return ret;
     }
 
-    public int maximizeGreatness(int[] nums) {
-        TreeMap<Integer, Integer> occurrence = new TreeMap<>();
-        for(int num : nums) {
-            occurrence.put(num, occurrence.getOrDefault(num, 0) + 1);
+    public long repairCars(int[] ranks, int cars) {
+        int c = 0;
+        for(int rank : ranks) {
+            c += Math.sqrt(1 / rank);
         }
+        if (c >= cars) return 1;
+
+        long l = 1, r = (long) ranks[0] * cars * cars;
+        while (l + 1 < r) {
+            long mid = (l + r) / 2;
+            int capacity = 0;
+            for(int rank : ranks) {
+                capacity += Math.sqrt(mid / rank);
+            }
+            if (capacity >= cars) {
+                r = mid;
+            } else {
+                l = mid;
+            }
+        }
+        return r;
+    }
+
+    public long findScore(int[] nums) {
+        TreeMap<Integer, List<Integer>> map = new TreeMap<>();
+        for(int i = 0; i < nums.length; i++) {
+            if (!map.containsKey(nums[i])) map.put(nums[i], new ArrayList<>());
+            map.get(nums[i]).add(i);
+        }
+
+        long ret = 0;
+        int remain = nums.length;
+        while (remain > 0) {
+            int firstKey = map.firstKey();
+            for(int index : map.get(firstKey)) {
+                if (nums[index] != -1) {
+                    ret += nums[index];
+                    nums[index] = -1;
+                    remain--;
+                    if (index > 0 && nums[index - 1] != -1){
+                        nums[index - 1] = -1;
+                        remain--;
+                    }
+                    if (index + 1 < nums.length || nums[index + 1] != -1) {
+                        nums[index + 1] = -1;
+                        remain--;
+                    }
+                }
+            }
+            map.remove(firstKey);
+        }
+        return ret;
+    }
+
+    public long minCost(int[] nums1, int[] nums2) {
+        TreeMap<Integer, Integer> map = new TreeMap<>();
+        for(int num : nums1) map.put(num, map.getOrDefault(num, 0) + 1);
+        for(int num : nums2) map.put(num, map.getOrDefault(num, 0) - 1);
+        int times = 0;
+        for (int key : map.keySet()) {
+            if (map.get(key) % 2 == 1) return -1;
+            if (map.get(key) > 0) times += map.get(key);
+        }
+        long ret = 0, opTimes = 0, minKey = map.firstKey();
+        while (opTimes < times) {
+            int key = map.firstKey();
+            if (map.get(key) != 0) {
+                long rep = Math.min(Math.abs(map.get(key)), times - opTimes);
+                ret += Math.min(rep * key / 2, minKey * rep);
+                opTimes += rep;
+            }
+            map.remove(key);
+        }
+        return ret;
+    }
+
+    public int collectTheCoins(int[] coins, int[][] edges) {
+        int n = coins.length;
+        Set<Integer>[] adjs = new HashSet[n];
+        for(int i = 0; i < n; i++) adjs[i] = new HashSet<>();
+        for(int[] e : edges) {
+            adjs[e[0]].add(e[1]);
+            adjs[e[1]].add(e[0]);
+        }
+
+        int remain = n - 1;
+        for(int i = 0; i < n; i++) {
+            // a leaf node without coin
+            if (adjs[i].size() == 1 && coins[i] == 0) {
+                int toRemove = i;
+                while(adjs[toRemove].size() == 1 && coins[toRemove] == 0) {
+                    // modify its parent
+                    Iterator<Integer> iter = adjs[toRemove].iterator();
+                    int parent = iter.next();
+                    adjs[parent].remove(toRemove);
+                    // remove itself
+                    adjs[toRemove] = new HashSet<>();
+                    toRemove = parent;
+                    remain--;
+                }
+            }
+        }
+
+        Queue<Integer> q = new LinkedList<>();
+        for(int i = 0; i < n; i++) {
+            if (adjs[i].size() == 1 && coins[i] == 1) {
+                q.add(i);
+            }
+        }
+        for (int loop = 0; loop < 2; loop++) {
+            int size = q.size();
+            for(int i = 0; i < size && remain > 0; i++) {
+                int node = q.poll();
+                int parent = adjs[node].iterator().next();
+                adjs[parent].remove(node);
+                adjs[node] = new HashSet<>();
+                if(adjs[parent].size() == 1) {
+                    q.add(parent);
+                }
+                remain--;
+            }
+        }
+
+        return remain * 2;
+    }
+
+    public int minimumScore(String s, String t) {
+        int[] dp = new int[t.length()];
+        Arrays.fill(dp, -1);
+        int i = s.length() - 1, j = t.length() - 1;
+        while(i >= 0 && j >= 0) {
+            if(s.charAt(i) == t.charAt(j)) {
+                dp[j--] = i;
+            }
+            i--;
+        }
+        int res = j + 1, k = j + 1;
+        for(i = 0, j = 0; i < s.length() && j < t.length() && res > 0; i++) {
+            if(s.charAt(i) == t.charAt(j)) {
+                while(k < t.length() && dp[k] <= i){
+                    k++;
+                }
+                res = Math.min(res, k - j - 1);
+                j++;
+            }
+        }
+        return res;
+    }
+
+    public List<Long> minOperations(int[] nums, int[] queries) {
         Arrays.sort(nums);
-        int ret = 0;
-        for(int num: nums) {
-            if (occurrence.higherKey(num) == null || occurrence.get(occurrence.higherKey(num)) == 0) continue;
-            int key = occurrence.higherKey(num);
-            occurrence.put(key, occurrence.get(key) - 1);
-            if (occurrence.get(key) == 0) occurrence.remove(key);
-            ret++;
+        long[] prefix = new long[nums.length + 1];
+        for(int i = 1; i <= nums.length; i++) {
+            prefix[i] = prefix[i - 1] + nums[i - 1];
+        }
+        List<Long> ret = new ArrayList<Long>();
+        for (int query : queries) {
+            int pos = Arrays.binarySearch(nums, 0, nums.length, query);
+            if (pos < 0) pos = -(pos + 1);
+            long lessThanSum = prefix[pos];
+            long greaterThanSum = prefix[prefix.length - 1] - prefix[pos];
+            long op = (long) query * pos - lessThanSum + greaterThanSum - (nums.length - pos) * (long) query;
+            ret.add(op);
         }
         return ret;
     }
@@ -62,10 +212,9 @@ public class Solution {
         int[][] tasks = new int[][]{
                 {6, 20, 3}
         };
-        // [[1,10,7],[4,11,1],[3,19,7],[10,15,2]]
-        // [[4,20,10],[1,20,5]]
-        int[] array = new int[]{1,3,5,2,1,3,1};
-        System.out.println(solution.maximizeGreatness(array));
+        // [[0,1],[0,2],[1,3],[1,4],[2,5],[5,6],[5,7]]
+        int[][] edges = new int[][]{{0,1}}; //{0,2},{1,3},{1,4},{2,5},{5,6},{5,7}
+        System.out.println(solution.minOperations(new int[]{2,9,6,3}, new int[]{10}));
     }
 
     public List<Integer> largestDivisibleSubsetII(int[] nums) {
