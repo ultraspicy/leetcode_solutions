@@ -1,220 +1,175 @@
+import minmaxstack.MaxStack;
+
 import java.util.*;
 
 public class Solution {
 
     int M = 1000000000 + 7;
 
-    public int findMinimumTime(int[][] tasks) {
-        Arrays.sort(tasks, (o1, o2) -> {
-            if (o1[1] -o2[1] == 0) return o1[0] - o2[0];
-            return o1[1] - o2[1];
-        });
-        int[] done = new int[2001];
-
+    public int minimumTotalPrice(int n, int[][] edges, int[] price, int[][] trips) {
+        Map<Integer, List<Integer>> adj = new HashMap<>();
+        Map<Integer, Integer> visits = new HashMap<>();
+        for(int i = 0; i < n; i++) adj.put(i, new ArrayList<>());
+        for (int i = 0; i < edges.length; i++) {
+            int s = edges[i][0], e = edges[i][1];
+            adj.get(s).add(e);
+            adj.get(e).add(s);
+        }
         int ret = 0;
-        for(int i = 0; i < tasks.length; i++) {
-            int[] task = tasks[i];
-            int start = task[0], end = task[1], remain = task[2];
-            // first calculate how many tasks have been done
-            for(int j = end; j >= start && remain > 0; j--) {
-                if(done[j] == -1) remain--;
+        for(int[] trip : trips) {
+            int start = trip[0], end = trip[1];
+            if (start == end) {
+                visits.put(start, visits.get(start) + 1);
+                continue;
             }
-            // update number line
-            for(int j = end; j >= start && remain > 0; j--) { {
-                if(done[j] != -1) {
-                    done[j] = -1;
-                    ret++;
-                    remain--;
-                }
-            }}
+            List<Integer> path = new ArrayList<>();
+            path.add(start);
+            dfs(adj, start, end, path, -1);
+            for(int node : path) {
+                visits.put(node, visits.getOrDefault(node, 0) + 1);
+            }
+        }
+        for(int i = 0; i < price.length; i++) {
+            price[i] = price[i] * visits.get(i);
+        }
+        ret = dfs2(adj, true, 0, price[0] / 2, price, new HashSet<>());
+        ret = Math.min(ret, dfs2(adj, false, 0, price[0], price, new HashSet<>()));
+        return ret;
+    }
+
+    private int dfs2 (Map<Integer, List<Integer>> adj, boolean prevHalved, int start, int preCost, int[] price, Set<Integer> visited) {
+        int ret  = preCost;
+        visited.add(start);
+        List<Integer> nextHops = adj.get(start);
+        for(int i = 0; i < nextHops.size(); i++) {
+            int cur = nextHops.get(i);
+            if (visited.contains(cur)) continue;
+            int op = dfs2(adj, false, cur, preCost + price[cur], price, visited);
+            if (!prevHalved) {
+                op = Math.min(op, dfs2(adj, true, cur, preCost + price[cur] / 2, price, visited));
+            }
+            ret += op;
         }
         return ret;
     }
 
-    public long repairCars(int[] ranks, int cars) {
-        int c = 0;
-        for(int rank : ranks) {
-            c += Math.sqrt(1 / rank);
+    // return the trip history
+    private boolean  dfs (Map<Integer, List<Integer>> adj, int start, int end, List<Integer> path, int parent) {
+        if (start == end) {
+            return true;
         }
-        if (c >= cars) return 1;
-
-        long l = 1, r = (long) ranks[0] * cars * cars;
-        while (l + 1 < r) {
-            long mid = (l + r) / 2;
-            int capacity = 0;
-            for(int rank : ranks) {
-                capacity += Math.sqrt(mid / rank);
+        List<Integer> nextHops = adj.get(start);
+        for(int i = 0; i < nextHops.size(); i++) {
+            int cur = nextHops.get(i);
+            if (cur == parent) continue;
+            path.add(cur);
+            if (dfs(adj, nextHops.get(i), end, path, start)) {
+                return true;
             }
-            if (capacity >= cars) {
-                r = mid;
-            } else {
-                l = mid;
-            }
+            path.remove(path.size() - 1);
         }
-        return r;
-    }
-
-    public long findScore(int[] nums) {
-        TreeMap<Integer, List<Integer>> map = new TreeMap<>();
-        for(int i = 0; i < nums.length; i++) {
-            if (!map.containsKey(nums[i])) map.put(nums[i], new ArrayList<>());
-            map.get(nums[i]).add(i);
-        }
-
-        long ret = 0;
-        int remain = nums.length;
-        while (remain > 0) {
-            int firstKey = map.firstKey();
-            for(int index : map.get(firstKey)) {
-                if (nums[index] != -1) {
-                    ret += nums[index];
-                    nums[index] = -1;
-                    remain--;
-                    if (index > 0 && nums[index - 1] != -1){
-                        nums[index - 1] = -1;
-                        remain--;
-                    }
-                    if (index + 1 < nums.length || nums[index + 1] != -1) {
-                        nums[index + 1] = -1;
-                        remain--;
-                    }
-                }
-            }
-            map.remove(firstKey);
-        }
-        return ret;
-    }
-
-    public long minCost(int[] nums1, int[] nums2) {
-        TreeMap<Integer, Integer> map = new TreeMap<>();
-        for(int num : nums1) map.put(num, map.getOrDefault(num, 0) + 1);
-        for(int num : nums2) map.put(num, map.getOrDefault(num, 0) - 1);
-        int times = 0;
-        for (int key : map.keySet()) {
-            if (map.get(key) % 2 == 1) return -1;
-            if (map.get(key) > 0) times += map.get(key);
-        }
-        long ret = 0, opTimes = 0, minKey = map.firstKey();
-        while (opTimes < times) {
-            int key = map.firstKey();
-            if (map.get(key) != 0) {
-                long rep = Math.min(Math.abs(map.get(key)), times - opTimes);
-                ret += Math.min(rep * key / 2, minKey * rep);
-                opTimes += rep;
-            }
-            map.remove(key);
-        }
-        return ret;
-    }
-
-    public int collectTheCoins(int[] coins, int[][] edges) {
-        int n = coins.length;
-        Set<Integer>[] adjs = new HashSet[n];
-        for(int i = 0; i < n; i++) adjs[i] = new HashSet<>();
-        for(int[] e : edges) {
-            adjs[e[0]].add(e[1]);
-            adjs[e[1]].add(e[0]);
-        }
-
-        int remain = n - 1;
-        for(int i = 0; i < n; i++) {
-            // a leaf node without coin
-            if (adjs[i].size() == 1 && coins[i] == 0) {
-                int toRemove = i;
-                while(adjs[toRemove].size() == 1 && coins[toRemove] == 0) {
-                    // modify its parent
-                    Iterator<Integer> iter = adjs[toRemove].iterator();
-                    int parent = iter.next();
-                    adjs[parent].remove(toRemove);
-                    // remove itself
-                    adjs[toRemove] = new HashSet<>();
-                    toRemove = parent;
-                    remain--;
-                }
-            }
-        }
-
-        Queue<Integer> q = new LinkedList<>();
-        for(int i = 0; i < n; i++) {
-            if (adjs[i].size() == 1 && coins[i] == 1) {
-                q.add(i);
-            }
-        }
-        for (int loop = 0; loop < 2; loop++) {
-            int size = q.size();
-            for(int i = 0; i < size && remain > 0; i++) {
-                int node = q.poll();
-                int parent = adjs[node].iterator().next();
-                adjs[parent].remove(node);
-                adjs[node] = new HashSet<>();
-                if(adjs[parent].size() == 1) {
-                    q.add(parent);
-                }
-                remain--;
-            }
-        }
-
-        return remain * 2;
-    }
-
-    public int minimumScore(String s, String t) {
-        int[] dp = new int[t.length()];
-        Arrays.fill(dp, -1);
-        int i = s.length() - 1, j = t.length() - 1;
-        while(i >= 0 && j >= 0) {
-            if(s.charAt(i) == t.charAt(j)) {
-                dp[j--] = i;
-            }
-            i--;
-        }
-        int res = j + 1, k = j + 1;
-        for(i = 0, j = 0; i < s.length() && j < t.length() && res > 0; i++) {
-            if(s.charAt(i) == t.charAt(j)) {
-                while(k < t.length() && dp[k] <= i){
-                    k++;
-                }
-                res = Math.min(res, k - j - 1);
-                j++;
-            }
-        }
-        return res;
-    }
-
-    public List<Long> minOperations(int[] nums, int[] queries) {
-        Arrays.sort(nums);
-        long[] prefix = new long[nums.length + 1];
-        for(int i = 1; i <= nums.length; i++) {
-            prefix[i] = prefix[i - 1] + nums[i - 1];
-        }
-        List<Long> ret = new ArrayList<Long>();
-        for (int query : queries) {
-            int pos = Arrays.binarySearch(nums, 0, nums.length, query);
-            if (pos < 0) pos = -(pos + 1);
-            long lessThanSum = prefix[pos];
-            long greaterThanSum = prefix[prefix.length - 1] - prefix[pos];
-            long op = (long) query * pos - lessThanSum + greaterThanSum - (nums.length - pos) * (long) query;
-            ret.add(op);
-        }
-        return ret;
+        return false;
     }
 
     public static void main(String[] args) {
         Solution solution = new Solution();
-        int[][] questions = new int[][]{
-                {21,5},{92,3},{74,2},{39,4},{58,2},{5,5},{49,4},{65,3}
-        };
-        int[][] M = {{1,0,0},{0,1,0},{0,0,1}};
-        String[] strings1 = new String[]{"dd","aa","bb","dd","aa","dd","bb","dd","aa","cc","bb","cc","dd","cc"}, strings2 = new String[]{"tack","act","acti"};
 
-        String start = "hit", end = "cog";
-        Set<String> dict = new HashSet<>(Arrays.asList("hot","dot","dog","lot","log"));
-        //[[8,19,1],[3,20,1],[1,20,2],[6,13,3]]
-        int[][] tasks = new int[][]{
-                {6, 20, 3}
-        };
-        // [[0,1],[0,2],[1,3],[1,4],[2,5],[5,6],[5,7]]
-        int[][] edges = new int[][]{{0,1}}; //{0,2},{1,3},{1,4},{2,5},{5,6},{5,7}
-        System.out.println(solution.minOperations(new int[]{2,9,6,3}, new int[]{10}));
+        // Input: n = 4, edges = [[0,1],[1,2],[1,3]], price = [2,2,10,6], trips = [[0,3],[2,1],[2,3]]
+        System.out.println(solution.minimumTotalPrice(
+                4,
+                new int[][]{{0,1},{1,2},{1,3}},
+                new int[]{2,2,10,6},
+                new int[][]{{0,3},{2,1},{2,3}}
+        ));
+    }
+
+    public String findTheString(int[][] lcp) {
+        int n = lcp.length;
+        int[] parent = new int[n];
+        for(int i = 0; i < n; i++) {
+            parent[i] = i;
+        }
+
+        for(int i = 0; i < n; i++) {
+            if(lcp[i][i] != n - i) return "";
+        }
+        for(int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                // diagonal symmetry
+                if (lcp[i][j] != lcp[j][i]) return "";
+                // for j, the remaining chars (inc. j) are n - j + 1
+                if(lcp[i][j] > n - j) return "";
+                for(int k = 0; k < lcp[i][j]; k++) {
+                    // union i+k, j+k
+                    union(parent, i + k, j + k);
+                }
+            }
+        }
+        for(int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                if(lcp[i][j] + j < n) {
+                    int f1 = find(parent, i + lcp[i][j]);
+                    int f2 = find(parent, j + lcp[i][j]);
+                    if(f1 == f2) return "";
+                }
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        Map<Integer, Integer> map = new HashMap<>();
+        int next = 0;
+        for(int i : parent) {
+            if (!map.containsKey(i)) {
+                map.put(i, next);
+            }
+            sb.append((char)('a' + map.get(i)));
+            next++;
+        }
+        return sb.toString();
+    }
+
+    // assume x < y
+    private void union(int[] parent, int x, int y) {
+        parent[y] = find(parent, x);
+    }
+
+    private int find(int[] parent, int x) {
+        if(parent[x] == x) {
+            return x;
+        }
+        parent[x] = find(parent, parent[x]);
+        return parent[x];
+    }
+
+    public boolean isPossibleToCutPath(int[][] grid) {
+        int m = grid.length, n = grid[0].length;
+        int[][] dp = new int[m][n];
+        dp[0][0] = 1;
+        for(int j = 1; j < n; j++) {
+            if(grid[0][j] == 0){
+                break;
+            }
+            dp[0][j] = 1;
+        }
+        for(int i = 1; i < m; i++) {
+            if (grid[i][0] == 0) {
+                break;
+            }
+            dp[i][0] = 1;
+        }
+        for(int i = 1; i < m; i++) {
+            for(int j = 1; j < n; j++) {
+                if(grid[i][j] == 1) {
+                    dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+                }
+            }
+        }
+        if (dp[m - 1][n - 1] == 0) return true;
+        for(int i = 1; i < m; i++) {
+            for(int j = 1; j < n; j++) {
+                if ((i != m - 1 || j != n - 1) && dp[i][j] == dp[m - 1][n - 1]) return true;
+            }
+        }
+        return false;
     }
 
     public List<Integer> largestDivisibleSubsetII(int[] nums) {
