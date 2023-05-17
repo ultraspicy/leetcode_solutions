@@ -34,6 +34,4 @@
 * 有几个点没想到
   * 起始点不重要 在trim之后如果要回到原点 每条边必须经过两次
   * 这个题就是一个trim之后从leaf node往上走两次 看还剩下多少条边
-
-### 2653 https://leetcode.com/problems/sliding-subarray-beauty/
-* 没想到用到输入有界限 如果把前x - 1个数从queue里面倒出来再装回去会超时
+ - 

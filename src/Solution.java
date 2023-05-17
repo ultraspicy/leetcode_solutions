@@ -81,42 +81,6 @@ public class Solution {
                 new int[]{2,2,10,6},
                 new int[][]{{0,3},{2,1},{2,3}}
         ));
-        solution.getSubarrayBeauty(new int[]{1,-1,-3,-2,3}, 3, 2);
-
-    }
-
-    public int[] getSubarrayBeauty(int[] nums, int k, int x) {
-        int[] buckets = new int[51];
-        for(int i = 0; i < k; i++) {
-            if(nums[i] < 0) {
-                buckets[-nums[i]]++;
-            }
-        }
-        int idx = 0;
-        int[] ret = new int[nums.length - k + 1];
-        // get xth smallest element
-        int count = 0, j = 50;
-        for(; j > 0; j--) {
-            if (count < x) {
-                count = count + buckets[j];
-            }
-            if (count >= x) break;
-        }
-        ret[idx++] = (count < x ? 0 : -j);
-        for(int i = k; i < nums.length; i++) {
-            if(nums[i - k] < 0) buckets[-nums[i - k]]--;
-            if(nums[i] < 0) buckets[-nums[i]]++;
-            count = 0;
-            j = 50;
-            for(; j > 0; j--) {
-                if (count < x) {
-                    count = count + buckets[j];
-                }
-                if (count >= x) break;
-            }
-            ret[idx++] = (count < x ? 0 : -j);
-        }
-        return ret;
     }
 
     public String findTheString(int[][] lcp) {
