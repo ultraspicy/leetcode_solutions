@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use std::collections::VecDeque;
+use std::ops::Deref;
 
 fn main() {
     // let v = vec![vec![2,4,3,5], vec![5,4,9,3], vec![3,4,2,11]];
@@ -84,5 +86,41 @@ impl Solution {
         }
         cache[last_row][last_col] = ret;
         return ret;
+    }
+
+    pub fn count_complete_components(n: i32, edges: Vec<Vec<i32>>) -> i32 {
+        let mut map: HashMap<i32, Vec<i32>> = HashMap::new();
+        for edge in &edges {
+            let (u, v) = (edge[0], edge[1]);
+            map.entry(u).or_default().push(v);
+            map.entry(v).or_default().push(u);
+        }
+
+        let mut visited = vec![false; n as usize];
+        let mut ret = 0;
+        for i in 0..n {
+            if !visited.get(i as usize).unwrap() {
+                visited[i as usize] = true;
+                let mut cc = vec![i];
+                // bfs
+                let mut queue = VecDeque::new();
+                queue.push_back(i);
+                while let Some(node) = queue.pop_front() {
+                    if let Some(neighbors) = map.get(&node) {
+                        for &neigh in neighbors {
+                            if !visited.get(neigh as usize).unwrap() {
+                                visited[neigh as usize] = true;
+                                cc.push(neigh);
+                                queue.push_back(neigh);
+                            }
+                        }
+                    }
+                }
+                if cc.len() == 1 || cc.iter().all(|&x| map[&x].len() == cc.len()) {
+                    ret += 1;
+                }
+            }
+        }
+        ret
     }
 }
