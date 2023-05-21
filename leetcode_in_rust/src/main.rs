@@ -6,7 +6,7 @@ fn main() {
     // let v = vec![vec![2,4,3,5], vec![5,4,9,3], vec![3,4,2,11]];
     // println!("{}", Solution::max_moves(v));
     let v: usize = 0;
-    println!("{}", v as i32 - 1);
+    println!("{}", Solution::sum_of_power(vec![1, 2, 4]));
 }
 
 fn print_vec(vec: &Vec<i32>) {
@@ -120,6 +120,39 @@ impl Solution {
                     ret += 1;
                 }
             }
+        }
+        ret
+    }
+
+    pub fn sum_of_power(nums: Vec<i32>) -> i32 {
+        let M: i32 = 1_000_000_000 + 9;
+        if nums.len() == 1 {
+            let num = nums.get(0).copied().unwrap_or(0);
+            return Self::pow(&num, 3);
+        }
+
+        let nums_mut_ref = &mut nums.clone();
+        nums_mut_ref.sort();
+
+        let first = nums_mut_ref.get(0).copied().unwrap();
+        let (mut f_k, mut b_k) = (Self::pow(&first, 3), first);
+        for i in 1..nums_mut_ref.len() {
+            b_k = b_k + Self::pow(&2, i as i32);
+            let num = nums_mut_ref.get(i).copied().unwrap();
+            f_k = ((Self::pow(&num, 3) + Self::pow(&num, 3) * b_k) % M  + f_k) % M
+        }
+        f_k
+    }
+
+    pub fn pow(base: &i32, exp:i32) -> i32 {
+        let M: i32 = 1_000_000_000 + 9;
+        if exp == 1 {
+            return *base
+        }
+
+        let mut ret = *base;
+        for i in 1..exp {
+            ret = (ret * base) % M;
         }
         ret
     }
