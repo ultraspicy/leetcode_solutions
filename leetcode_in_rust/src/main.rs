@@ -6,7 +6,7 @@ fn main() {
     // let v = vec![vec![2,4,3,5], vec![5,4,9,3], vec![3,4,2,11]];
     // println!("{}", Solution::max_moves(v));
     let v: usize = 0;
-    println!("{}", Solution::sum_of_power(vec![1, 2, 4]));
+    println!("{}", Solution::sum_of_power(vec![658,489,777,2418,1893,130,2448,178,1128,2149,1059,1495,1166,608,2006,713,1906,2108,680,1348,860,1620,146,2447,1895,1083,1465,2351,1359,1187,906,533,1943,1814,1808,2065,1744,254,1988,1889,1206]));
 }
 
 fn print_vec(vec: &Vec<i32>) {
@@ -125,35 +125,36 @@ impl Solution {
     }
 
     pub fn sum_of_power(nums: Vec<i32>) -> i32 {
-        let M: i32 = 1_000_000_000 + 9;
+        let m: i64 = 1_000_000_000 + 9;
         if nums.len() == 1 {
-            let num = nums.get(0).copied().unwrap_or(0);
-            return Self::pow(&num, 3);
+            let num = nums.get(0).copied().unwrap_or(0) as i64;
+            return (Self::pow(&num, 3) % m ) as i32;
         }
 
-        let nums_mut_ref = &mut nums.clone();
+        let mut nums_mut_ref = nums.clone();
         nums_mut_ref.sort();
 
-        let first = nums_mut_ref.get(0).copied().unwrap();
+        let first = nums_mut_ref.get(0).copied().unwrap() as i64;
         let (mut f_k, mut b_k) = (Self::pow(&first, 3), first);
         for i in 1..nums_mut_ref.len() {
-            b_k = b_k + Self::pow(&2, i as i32);
-            let num = nums_mut_ref.get(i).copied().unwrap();
-            f_k = ((Self::pow(&num, 3) + Self::pow(&num, 3) * b_k) % M  + f_k) % M
+            let num: i64 = nums_mut_ref.get(i).copied().unwrap() as i64;
+            f_k = ((Self::pow(&num, 3) + Self::pow(&num, 2) * b_k as i64) % m  + f_k) % m;
+            b_k = ((2 * b_k) % m + num) % m;
+
         }
-        f_k
+        f_k as i32
     }
 
-    pub fn pow(base: &i32, exp:i32) -> i32 {
-        let M: i32 = 1_000_000_000 + 9;
+    pub fn pow(base: &i64, exp:i32) -> i64 {
+        let m: i64 = 1_000_000_000 + 9;
         if exp == 1 {
-            return *base
+            return *base as i64
         }
 
         let mut ret = *base;
-        for i in 1..exp {
-            ret = (ret * base) % M;
+        for _i in 1..exp {
+            ret = (ret * base) % m;
         }
-        ret
+        ret as i64
     }
 }
