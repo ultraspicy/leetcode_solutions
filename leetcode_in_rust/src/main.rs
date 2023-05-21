@@ -125,36 +125,30 @@ impl Solution {
     }
 
     pub fn sum_of_power(nums: Vec<i32>) -> i32 {
-        let m: i64 = 1_000_000_000 + 9;
+        let m: i64 = 1_000_000_000 + 7;
         if nums.len() == 1 {
             let num = nums.get(0).copied().unwrap_or(0) as i64;
-            return (Self::pow(&num, 3) % m ) as i32;
+            return (Self::pow(num, 3) % m ) as i32;
         }
 
         let mut nums_mut_ref = nums.clone();
         nums_mut_ref.sort();
-
-        let first = nums_mut_ref.get(0).copied().unwrap() as i64;
-        let (mut f_k, mut b_k) = (Self::pow(&first, 3), first);
-        for i in 1..nums_mut_ref.len() {
+        let (mut f_k, mut b_k) = (0, 0);
+        for i in 0..nums_mut_ref.len() {
             let num: i64 = nums_mut_ref.get(i).copied().unwrap() as i64;
-            f_k = ((Self::pow(&num, 3) + Self::pow(&num, 2) * b_k as i64) % m  + f_k) % m;
+            f_k = ((Self::pow(num, 3) + Self::pow(num, 2) * b_k as i64) % m  + f_k) % m;
             b_k = ((2 * b_k) % m + num) % m;
 
         }
         f_k as i32
     }
 
-    pub fn pow(base: &i64, exp:i32) -> i64 {
-        let m: i64 = 1_000_000_000 + 9;
-        if exp == 1 {
-            return *base as i64
-        }
-
-        let mut ret = *base;
-        for _i in 1..exp {
+    pub fn pow(base: i64, exp: i64) -> i64 {
+        let m: i64 = 1_000_000_000 + 7;
+        let mut ret = 1;
+        for _i in 0..exp {
             ret = (ret * base) % m;
         }
-        ret as i64
+        ret
     }
 }
