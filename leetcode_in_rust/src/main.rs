@@ -3,10 +3,10 @@ use std::collections::VecDeque;
 use std::ops::Deref;
 
 fn main() {
-    // let v = vec![vec![2,4,3,5], vec![5,4,9,3], vec![3,4,2,11]];
-    // println!("{}", Solution::max_moves(v));
+
     let v: usize = 0;
-    println!("{}", Solution::sum_of_power(vec![658,489,777,2418,1893,130,2448,178,1128,2149,1059,1495,1166,608,2006,713,1906,2108,680,1348,860,1620,146,2447,1895,1083,1465,2351,1359,1187,906,533,1943,1814,1808,2065,1744,254,1988,1889,1206]));
+    //println!("{}", Solution::punishment_number(37));
+    println!("{}", Solution::dfs_punishment_number("100", 0, 0, 10));
 }
 
 fn print_vec(vec: &Vec<i32>) {
@@ -17,7 +17,56 @@ fn print_vec(vec: &Vec<i32>) {
 
 pub struct Solution {}
 
+pub struct Trie {
+    letter: char,
+    valid: bool,
+    children: [Trie; 26],
+}
+
 impl Solution {
+
+    pub fn buildTrie(dictionary: Vec<String>) -> Trie {
+
+    }
+
+    pub fn min_extra_char(s: String, dictionary: Vec<String>) -> i32 {
+
+    }
+
+
+    pub fn punishment_number(n: i32) -> i32 {
+        let mut vec = vec![];
+        for i in 1..=n {
+            let num_in_str = (i * i).to_string();
+            let is_punish = Solution::dfs_punishment_number(num_in_str.as_ref(), 0, 0, i);
+            if is_punish {
+                vec.push(i);
+            }
+        }
+        print_vec(&vec);
+        vec.iter().map(|x| x*x).sum()
+    }
+
+    fn dfs_punishment_number(number_in_string: &str, sum: i32, start: usize, target: i32) -> bool {
+        if sum > target {
+            return false;
+        }
+
+        let l = number_in_string.len();
+        (start..=(l - 1)).any(|i| {
+            let parsed_number: Result<i32, _> = number_in_string[start..=i].parse();
+            match parsed_number {
+                Ok(number) => {
+                    if i == (l - 1) {
+                        return number + sum == target;
+                    }
+                    Self::dfs_punishment_number(number_in_string, sum + number, i + 1, target)
+                },
+                _ => false,
+            }
+        })
+    }
+
     pub fn circular_game_losers(n: i32, k: i32) -> Vec<i32> {
         let mut map = HashMap::new();
         map.insert(1, 0);
@@ -151,4 +200,9 @@ impl Solution {
         }
         ret
     }
+
+    // pub fn punishment_number(n: i32) -> i32 {
+    //
+    // }
+
 }
