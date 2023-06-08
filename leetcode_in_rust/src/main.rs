@@ -1,15 +1,19 @@
+use std::borrow::Borrow;
 use std::collections::HashMap;
 use std::collections::VecDeque;
+use std::fmt::Display;
 use std::ops::Deref;
 
 fn main() {
 
     let v: usize = 0;
     //println!("{}", Solution::punishment_number(37));
-    println!("{}", Solution::dfs_punishment_number("100", 0, 0, 10));
+    println!("{}", Solution::min_extra_char("leetscode", vec!["leet","code","leetcode"]));
+    let s = "abcdefg";
+    println!("{}", &s[2..3]);
 }
 
-fn print_vec(vec: &Vec<i32>) {
+fn print_vec<T: std::fmt::Display>(vec: &Vec<T>) {
     for e in vec {
         println!("{} \t", e);
     }
@@ -17,20 +21,70 @@ fn print_vec(vec: &Vec<i32>) {
 
 pub struct Solution {}
 
+#[derive(Default)]
 pub struct Trie {
-    letter: char,
-    valid: bool,
-    children: [Trie; 26],
+    is_word: bool,
+    children: [Box<Option<Trie>>; 26],
+}
+
+impl Trie {
+    pub fn new() -> Self {
+        Trie::default()
+    }
+
+    pub fn insert(&mut self, word: &str) {
+        let mut node = self;
+
+        for ch in word.chars() {
+            let idx = ch as usize - 'a' as usize;
+            node = node.children[idx].get_or_insert_with(|| Trie::new());
+        }
+        node.is_word = true;
+    }
+
+    pub fn contains(&self, word: &str) -> bool {
+        let mut node = self;
+        for ch in word.chars() {
+            let idx = ch as usize - 'a' as usize;
+            match node.children[idx].deref() {
+                None => return false,
+                Some(trie) => node = trie,
+            }
+        }
+        node.is_word
+    }
 }
 
 impl Solution {
 
-    pub fn buildTrie(dictionary: Vec<String>) -> Trie {
-
+    pub fn test () {
+        Trie::new();
     }
 
-    pub fn min_extra_char(s: String, dictionary: Vec<String>) -> i32 {
+    pub fn buildTrie(dictionary: Vec<&str>) -> Trie {
+        let mut root = Trie::new();
+        for word in dictionary {
+            root.insert(word);
+        }
+        root
+    }
 
+    pub fn min_extra_char(s: &str, dictionary: Vec<&str>) -> i32 {
+        let trie = Solution::buildTrie(dictionary);
+
+        let mut dp =  vec![usize::MAX; s.len() + 1];
+        dp[0] = 0;
+        for end in 0..s.len() {
+            for start in 0..end {
+                if trie.contains(s[start..end].as_ref()) {
+                    dp[end] = std::cmp::min(dp[end], dp[start]);
+                } else {
+                    dp[end] = std::cmp::min(dp[end], dp[start] + end - start);
+                }
+            }
+        }
+        print_vec(dp.borrow());
+        dp[s.len()] as i32
     }
 
 
