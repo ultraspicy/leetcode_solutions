@@ -1,16 +1,32 @@
 use std::borrow::Borrow;
-use std::collections::HashMap;
+use std::cmp;
+use std::collections::{BTreeMap, HashMap};
 use std::collections::VecDeque;
 use std::fmt::Display;
 use std::ops::Deref;
+use itertools::Itertools;
 
 fn main() {
 
-    let v: usize = 0;
-    //println!("{}", Solution::punishment_number(37));
-    println!("{}", Solution::min_extra_char("leetscode", vec!["leet","code","leetcode"]));
-    let s = "abcdefg";
-    println!("{}", &s[2..3]);
+    // let v: usize = 0;
+    // //println!("{}", Solution::punishment_number(37));
+    // println!("{}", Solution::min_extra_char("leetscode", vec!["leet","code","leetcode"]));
+    // let s = "abcdefg";
+    // println!("{}", &s[2..3]);
+
+    let mut vectors = vec![
+        vec![1, 2, 5],
+        vec![1, 2, 6],
+        vec![2, 3, 5],
+        vec![2, 3, 6],
+    ];
+
+    // Retain vectors where the first two elements are not the same
+    let new_vectors: Vec<Vec<i32>> = vectors.iter().map(|x| vec![x[0], x[1] + 1, x[2] + 1]).collect();
+
+    println!("Filtered vectors: {:?}", new_vectors);
+    Solution::sum_indices_with_k_set_bits(vec![5, 10, 1, 5, 2], 1);
+
 }
 
 fn print_vec<T: std::fmt::Display>(vec: &Vec<T>) {
@@ -255,8 +271,19 @@ impl Solution {
         ret
     }
 
-    // pub fn punishment_number(n: i32) -> i32 {
-    //
-    // }
+    pub fn sum_indices_with_k_set_bits(nums: Vec<i32>, k: i32) -> i32 {
+        let n = nums.len();
+        let indices : Vec<_> = (1..=n)
+            .collect::<Vec<_>>()
+            .into_iter()
+            .filter(|&num| num.count_ones() == k as u32)
+            .collect();
+
+        let mut ret = 0;
+        for i in indices {
+            ret += nums.get(i).unwrap();
+        }
+        ret
+    }
 
 }
