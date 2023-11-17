@@ -8,7 +8,69 @@ public class Solution {
     public static void main(String[] args) {
         Solution solution = new Solution();
         char[][] grid = new char[][]{{'1','1','1','1','0'},{'1','1','0','1','0'},{'1','1','0','0','0'},{'0','0','0','0','0'}};
-        //System.out.println(solution.winnerOfGame("AAAABBBBB"));
+        System.out.println(solution.search(new int[]{4,5,6,7,0,1,2}, 0));
+    }
+
+    public int search(int[] nums, int target) {
+        // corner case num = [x]
+
+        int start = 0, end = nums.length - 1;
+        while (start < end) {
+            int mid = (start + end) / 2;
+            if(nums[mid] == target) return mid;
+            if(nums[mid] < target) {
+                if(nums[mid] < nums[start]) {
+                    end = mid;
+                } else {
+                    start = mid + 1;
+                }
+            } else {
+                // nums[mid] > target
+                if(target > nums[start]) {
+                    end = mid;
+                } else if (target == nums[start]) {
+                    return start;
+                } else {
+                    start = mid + 1;
+                }
+            }
+        }
+        return -1;
+    }
+
+    public int longestIncreasingPath(int[][] matrix) {
+        int ret = 0;
+        int[][] cache = new int[matrix.length][matrix[0].length];
+        for(int i = 0; i < matrix.length; i++) {
+            for(int j = 0; j < matrix[0].length; j++) {
+                cache[i][j] = -1;
+            }
+        }
+        for(int i = 0; i < matrix.length; i++) {
+            for(int j = 0; j < matrix[0].length; j++) {
+                ret = Math.max(ret, DFS(matrix, i, j, -1, cache));
+            }
+        }
+        return ret;
+    }
+
+    private int DFS(int[][] matrix, int x, int y, int prev, int[][] cache) {
+        if(x < 0 || x > matrix.length || y < 0 || y > matrix[0].length) {
+            return 0;
+        }
+        if (matrix[x][y] < prev) {
+            return 0;
+        }
+        if(cache[x][y] != -1) return cache[x][y];
+        int[][] directions = new int[][]{{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        int deepest = 0;
+        for(int[] direction : directions) {
+            int nextX = x + direction[0], nextY = y + direction[1];
+            int next = DFS(matrix, nextX, nextY, matrix[x][y], cache);
+            deepest = Math.max(deepest, next);
+        }
+        cache[x][y] = deepest + 1;
+        return deepest + 1;
     }
 
     public int minMeetingRooms(int[][] intervals) {
