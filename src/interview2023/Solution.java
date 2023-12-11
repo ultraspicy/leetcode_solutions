@@ -8,7 +8,101 @@ public class Solution {
     public static void main(String[] args) {
         Solution solution = new Solution();
         char[][] grid = new char[][]{{'1','1','1','1','0'},{'1','1','0','1','0'},{'1','1','0','0','0'},{'0','0','0','0','0'}};
-        System.out.println(solution.search(new int[]{4,5,6,7,0,1,2}, 0));
+        System.out.println(solution.countCompleteSubstrings("aaa" ,1));
+    }
+
+    public int countCompleteSubstrings(String word, int k) {
+        String alpha = "abcdefghijklmnopqrstuvwxyz";
+
+        int ret = 0, acc = 0;
+        Map<Character, Integer> map = new HashMap<>();
+
+        for(int i = 0; i < word.length(); i++) {
+            char cur = word.charAt(i);
+            char prev = i > 0 ? word.charAt(i - 1) : cur;
+
+            if(Math.abs(alpha.indexOf(prev) - alpha.indexOf(cur)) > 2) {
+                acc = 0;
+                map = new HashMap<>();
+                map.put(word.charAt(i), 1);
+                continue;
+            }
+            // check the substring
+            map.put(cur, map.getOrDefault(cur, 0) + 1);
+            boolean ok = true;
+            for(Character key : map.keySet()) {
+                if(map.get(key) != k) {
+                    ok = false;
+                    break;
+                }
+            }
+            if (ok) {
+                acc = acc + 1;
+                ret += (acc);
+            }
+        }
+        return ret;
+    }
+
+    public long maxBalancedSubsequenceSum(int[] nums) {
+        int[] phi = new int[nums.length];
+
+        for(int i = 0; i < phi.length; i++) {
+            phi[i] = nums[i] - i;
+        }
+        long ret = Long.MIN_VALUE;
+        TreeMap<Integer, Long> map = new TreeMap<>();
+        for(int i = 0; i < phi.length; i++) {
+            if(nums[i] <= 0) {
+                ret = Math.max(ret, nums[i]);
+                continue;
+            }
+
+            long tmp = (long)nums[i];
+            if (map.floorKey(phi[i]) != null) {
+                tmp += map.get(map.floorKey(phi[i]));
+            }
+            while(map.ceilingKey(phi[i]) != null && map.get(map.ceilingKey(phi[i])) < tmp) {
+                map.remove(map.ceilingKey(phi[i]));
+            }
+            map.put(phi[i], tmp);
+            ret = Math.max(ret, tmp);
+        }
+        return ret;
+    }
+
+    public int[] leftmostBuildingQueries(int[] heights, int[][] queries) {
+        int qn = queries.length, n = heights.length;
+        int[] ret = new int[qn];
+        Arrays.fill(ret, -1);
+        List<int[]>[] groupedQueries = new ArrayList[n];
+        for(int i = 0; i < n; i++) groupedQueries[i] = new ArrayList<>();
+        Queue<int[]> queue = new PriorityQueue<>(Comparator.comparingInt(a -> a[0]));
+
+        for(int i = 0; i < qn; i++) {
+            int alice = queries[i][0], bob = queries[i][1];
+            if (alice == bob) {
+                ret[i] = alice;
+            } else if (alice > bob && heights[alice] > heights[bob]) {
+                ret[i] = alice;
+            } else if(alice < bob && heights[alice] < heights[bob]) {
+                ret[i] = bob;
+            } else {
+                // group query
+                groupedQueries[Math.max(alice, bob)].add(new int[]{Math.max(heights[alice], heights[bob]), i});
+            }
+        }
+
+        for(int i = 0; i < n; i++) {
+            while(!queue.isEmpty() && queue.peek()[0] < heights[i]) {
+                ret[queue.poll()[1]] = i;
+            }
+
+            for(int[] query: groupedQueries[i]) {
+                queue.add(query);
+            }
+        }
+        return ret;
     }
 
     public int search(int[] nums, int target) {
@@ -163,7 +257,6 @@ public class Solution {
         }
         return dummy.next;
     }
-
 
     public String alienOrder(String[] words) {
         Map<Character, Map<Character, Integer>> connections = new HashMap<>();
