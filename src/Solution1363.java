@@ -27,6 +27,7 @@ public class Solution1363 {
         StringBuilder sb = new StringBuilder();
         for(int i = 9; i >= 0; i--) {
             sb.append(Character.toString('0' + i).repeat(count[i]));
+            sb.append(String.valueOf((char)('0' + i)).repeat(count[i]));
         }
         return (sb.length() > 0 && sb.charAt(0) == '0') ? "0" : sb.toString();
     }

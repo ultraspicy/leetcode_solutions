@@ -1,11 +1,8 @@
-import minmaxstack.MaxStack;
-
 import java.util.*;
 
 public class Solution {
 
     int M = 1000000000 + 7;
-
 
     public int minimumTotalPrice(int n, int[][] edges, int[] price, int[][] trips) {
         Map<Integer, List<Integer>> adj = new HashMap<>();

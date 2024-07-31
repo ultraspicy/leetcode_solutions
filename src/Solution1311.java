@@ -5,19 +5,73 @@ public class Solution1311 {
     public static void main(String[] args) {
         Solution1311 s = new Solution1311();
 
-        s.watchedVideosByFriends(
-                Arrays.asList(
-                  Arrays.asList("A", "B"), Arrays.asList("C"), Arrays.asList("C", "B"), Arrays.asList("D")
-                ),
-                new int[][] {
-                        {1, 2},
-                        {0, 3},
-                        {0, 3},
-                        {1, 2},
-                },
-                0, 1
-        );
+        //System.out.println(s.longestValidParentheses(")()())"));
     }
+
+    
+
+    // public long minimumCost(int[] nums) {
+    //     long sum = 0;
+    //     for (int num : nums) sum += (long)num;
+    
+    // }
+
+    // private int greatestNumSmallerThanOrEqualTo(int x) {
+    //     char[] chars = String.valueOf(x).toCharArray();
+    //     int firstHalf = Integer.parseInt(new String(chars, 0, chars.length / 2));
+    //     // construct the number
+    //     int ans;
+    //     if (chars.length % 2 == 1) {
+    //         ans = reconstruct(firstHalf, true, chars[chars.length / 2] - '0');
+    //     } else {
+    //         ans = reconstruct(firstHalf, false, -1);
+    //     }
+    //     if (ans <= x) return ans;
+
+    //     if (chars.length % 2 == 1) {
+    //         if(chars[chars.length / 2] == '0') {
+    //             firstHalf--;
+    //             return reconstruct(firstHalf, true, 9);
+    //         } else {
+    //             return reconstruct(firstHalf, true, chars[chars.length / 2] - '0' - 1);
+    //         }
+    //     } else {
+    //         // deduct the first half
+    //         firstHalf--;
+    //         return reconstruct(firstHalf, false, -1);
+    //     }
+    // }
+
+    // private int leastNumGreaterThanOrEqualTo(int x) {
+    //     char[] chars = String.valueOf(x).toCharArray();
+    //     int firstHalf = Integer.parseInt(new String(chars, 0, chars.length / 2));
+    //     // construct the number
+    //     int ans;
+    //     if (chars.length % 2 == 1) {
+    //         ans = reconstruct(firstHalf, true, chars[chars.length / 2] - '0');
+    //     } else {
+    //         ans = reconstruct(firstHalf, false, -1);
+    //     }
+    //     if (ans >= x) return ans;
+
+    //     if (chars.length % 2 == 1) {
+    //         if(chars[chars.length / 2] == '9') {
+    //             firstHalf++;
+    //             return reconstruct(firstHalf, true, 0);
+    //         } else {
+    //             return reconstruct(firstHalf, true, chars[chars.length / 2] - '0' + 1);
+    //         }
+    //     } else {
+    //         firstHalf++;
+    //         return reconstruct(firstHalf, false, -1);
+    //     }
+    // }
+
+    // private int reconstruct (int num, boolean hasMid, int mid) {
+    //     String reverse = new StringBuilder(String.valueOf(num)).reverse().toString();
+    //     String midString = hasMid ? (mid + "") : "";
+    //     return Integer.parseInt((num + "") + midString + reverse); 
+    // }
 
     public List<String> watchedVideosByFriends(List<List<String>> watchedVideos, int[][] friends, int id, int level) {
         List<Integer>[] graph = new List[friends.length];
