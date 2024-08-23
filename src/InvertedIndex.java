@@ -1,16 +1,16 @@
 
 import java.util.*;
-import java.util.stream.Collector;
+
 import java.util.stream.Collectors;
 
-class AutocompleteSystem {
+class InvertedIndex {
 
     private final Node root = new Node();
 
     private StringBuilder sb = new StringBuilder();
     private Node p = root;
     public static void main(String[] args) {
-        AutocompleteSystem ac = new AutocompleteSystem(
+        InvertedIndex ac = new InvertedIndex(
             new String[]{
                 "i love you",
                 "island",
@@ -22,7 +22,7 @@ class AutocompleteSystem {
         ac.input('i');    
     }
 
-    public AutocompleteSystem(String[] sentences, int[] times) {
+    public InvertedIndex(String[] sentences, int[] times) {
         for(int i = 0; i < sentences.length; i++) {
             // insert a sentence to inversed index
             root.insert(sentences[i], times[i]);
@@ -73,9 +73,3 @@ class AutocompleteSystem {
         }
     }
 }
-
-/**
- * Your AutocompleteSystem object will be instantiated and called as such:
- * AutocompleteSystem obj = new AutocompleteSystem(sentences, times);
- * List<String> param_1 = obj.input(c);
- */
