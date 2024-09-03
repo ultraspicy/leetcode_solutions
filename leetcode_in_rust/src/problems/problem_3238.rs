@@ -1,7 +1,7 @@
 
 use super::Solution;
 
-use std::{collections::HashMap, hash::Hash};
+use std::collections::HashMap;
 
 // key learnings:
 //   entry() method returns an Entry enum, which represents a slot in the HashMap with its status (occupied or vacant)
@@ -16,7 +16,7 @@ use std::{collections::HashMap, hash::Hash};
 //   map.into_iter(): Consumes the map and returns an iterator over owned key-value pairs. 
 
 impl Solution {
-    pub fn winning_player_count(n: i32, picks: Vec<Vec<i32>>) -> i32 {
+    pub fn winning_player_count(_n: i32, picks: Vec<Vec<i32>>) -> i32 {
         let mut map:HashMap<i32, HashMap<i32, i32>> = HashMap::new();
         for pick in picks {
             let color_frequency = map.entry(pick[0]).or_insert(HashMap::new());
