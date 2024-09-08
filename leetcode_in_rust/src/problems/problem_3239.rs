@@ -8,7 +8,7 @@ impl Solution {
         row.iter().zip(row.iter().rev()).take(row.len() / 2).filter(|(&a, &b)| a != b).count() as i32
     }
 
-    pub fn min_flips(grid: Vec<Vec<i32>>) -> i32 {
+    pub fn min_flips_3239(grid: Vec<Vec<i32>>) -> i32 {
         let m = grid.len();
         let n = grid[0].len();
 
