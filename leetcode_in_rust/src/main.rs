@@ -1,6 +1,6 @@
 use leetcode_in_rust::problems::Solution;
 
 fn main() {
-    let result = Solution::max_score(vec![100000,100000,100000,100000], vec![-100000,-100000,-100000,-100000]);
+    let result = Solution::common_chars(vec![String::from("bella"),String::from("label")]);
     println!("Result of problem 3240: {:?}", result);
 }
