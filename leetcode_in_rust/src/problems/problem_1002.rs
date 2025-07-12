@@ -1,7 +1,4 @@
-use crate::utils;
-
 use super::Solution;
-use std::{collections::{HashMap, HashSet}, hash::Hash};
 
 impl Solution {
     pub fn common_chars(words: Vec<String>) -> Vec<String> {

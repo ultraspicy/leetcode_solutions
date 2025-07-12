@@ -6,7 +6,7 @@ impl Solution {
 
         words.iter()
             .enumerate()
-            .find(|(i, &s)| { Self::is_prefix(s, &search_word)})
+            .find(|(_, &s)| { Self::is_prefix(s, &search_word)})
             .map(|(i, _)| { (i + 1) as i32 })
             .unwrap_or(-1)
     }

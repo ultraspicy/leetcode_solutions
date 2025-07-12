@@ -13,7 +13,7 @@ impl Solution {
                 _ => 1
             }
         })
-        .fold(0, |mut acc, cur| {
+        .fold(0, |acc, cur| {
             if acc + cur < 0 {
                 0
             } else {

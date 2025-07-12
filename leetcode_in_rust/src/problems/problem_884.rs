@@ -1,5 +1,5 @@
 use super::Solution;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 impl Solution {
     
@@ -12,8 +12,8 @@ impl Solution {
                 acc
             })
             .into_iter()
-            .filter(|(k, v)| *v == 1) // filter borrows the item so (k, v) are refs
-            .map(|(k, v)| k.to_string()) // map moves the item, so (k, v) are owned values 
+            .filter(|(_, v)| *v == 1) // filter borrows the item so (k, v) are refs
+            .map(|(k, _)| k.to_string()) // map moves the item, so (k, v) are owned values 
             .collect::<Vec<_>>()
     }
 }
