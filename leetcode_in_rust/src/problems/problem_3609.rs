@@ -3,7 +3,7 @@ use super::Solution;
 impl Solution {
     pub fn min_moves(sx: i32, sy: i32, tx: i32, ty: i32) -> i32 {
         if sx == 0 && sy == 0 {
-            if (tx == 0 && ty == 0) {
+            if tx == 0 && ty == 0 {
                 return 0;
             } else {
                 return -1;
