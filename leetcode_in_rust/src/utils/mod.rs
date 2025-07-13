@@ -1,7 +1,3 @@
-pub use self::trie::Trie;
-
-pub mod trie;
-
 // Utility function for printing vectors
 pub fn print_vec<T: std::fmt::Display>(vec: &Vec<T>) {
     for e in vec {
