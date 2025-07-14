@@ -49,3 +49,4 @@ pub mod problem_3602;
 pub mod problem_3599;
 pub mod problem_3598;
 pub mod problem_3597;
+pub mod problem_3594;
