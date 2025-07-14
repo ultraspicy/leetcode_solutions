@@ -50,3 +50,5 @@ pub mod problem_3599;
 pub mod problem_3598;
 pub mod problem_3597;
 pub mod problem_3594;
+pub mod problem_3612;
+pub mod problem_3613;
