@@ -1,4 +1,4 @@
-use std::{collections::{HashMap, HashSet}, hash::Hash, i32, vec};
+use std::collections::HashSet;
 
 use super::Solution;
 
@@ -32,14 +32,13 @@ impl Solution {
                 let (s2, e2) = (edges[j][0] as usize, edges[j][1] as usize);
                 let node2 = if descendants[s2].contains(&e2) {e2} else {s2};
 
-                let (mut left, mut mid, mut right) = (0, 0, 0);
-                if descendants[node1].contains(&node2) {
-                    (left, mid, right) = (xor_all[node2], xor_all[node1] ^ xor_all[node2], xor_all[0] ^ xor_all[node1]);
+                let (left, mid, right) = if descendants[node1].contains(&node2) {
+                    (xor_all[node2], xor_all[node1] ^ xor_all[node2], xor_all[0] ^ xor_all[node1])
                 } else if descendants[node2].contains(&node1) {
-                    (left, mid, right) = (xor_all[node1], xor_all[node2] ^ xor_all[node1], xor_all[0] ^ xor_all[node2]);
+                    (xor_all[node1], xor_all[node2] ^ xor_all[node1], xor_all[0] ^ xor_all[node2])
                 } else {
-                    (left, mid, right) = (xor_all[node1], xor_all[node2], xor_all[0] ^ xor_all[node2] ^ xor_all[node1]);
-                }
+                    (xor_all[node1], xor_all[node2], xor_all[0] ^ xor_all[node2] ^ xor_all[node1])
+                };
 
                 ret = ret.min(left.max(mid).max(right) - left.min(mid).min(right));
                 println!("node1 = {}, node2 = {}", node1, node2);
