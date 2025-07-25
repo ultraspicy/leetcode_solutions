@@ -1,5 +1,3 @@
-use core::num;
-
 use super::Solution;
 
 impl Solution {
@@ -10,7 +8,7 @@ impl Solution {
             if Self::is_prime(i) {
                 sum += *nums.get(i).unwrap() as i64;
             } else {
-                sum -= *nums.get(i).unwrap() as i64; 
+                sum -= *nums.get(i).unwrap() as i64;
             }
         }
 
