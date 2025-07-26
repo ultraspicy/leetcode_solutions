@@ -3,7 +3,7 @@ use std::collections::{BinaryHeap, HashMap};
 use super::Solution;
 
 impl Solution {
-    pub fn find_max_path_score(edges: Vec<Vec<i32>>, online: Vec<bool>, k: i64) -> i32 {
+    pub fn find_max_path_score_normal(edges: Vec<Vec<i32>>, online: Vec<bool>, k: i64) -> i32 {
         let k = k as usize;
         let end_node_id = online.len() - 1;
         let mut ret = -1;
@@ -60,14 +60,14 @@ mod test {
 
     #[test]
     fn unit_test() {
-        let ret = Solution::find_max_path_score(vec![vec![0,1,5],vec![1,3,10],vec![0,2,3],vec![2,3,4]],
+        let ret = Solution::find_max_path_score_normal(vec![vec![0,1,5],vec![1,3,10],vec![0,2,3],vec![2,3,4]],
             vec![true, true, true, true], 10);
         assert_eq!(ret, 3);
     }
 
     #[test]
     fn unit_test2() {
-        let ret = Solution::find_max_path_score(
+        let ret = Solution::find_max_path_score_normal(
             vec![vec![0,1,7],vec![1,4,5],vec![0,2,6],vec![2,3,6],vec![3,4,2],vec![2,4,6]],
             vec![true,true,true,false,true],
             12

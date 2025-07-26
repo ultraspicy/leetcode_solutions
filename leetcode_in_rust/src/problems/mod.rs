@@ -64,3 +64,4 @@ pub mod problem_3623;
 pub mod problem_3620;
 pub mod problem_3622;
 pub mod problem_3587;
+pub mod problem_3620_bs;
