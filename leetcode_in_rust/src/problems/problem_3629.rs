@@ -1,9 +1,9 @@
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, VecDeque};
 
 use super::Solution;
 
 impl Solution {
-    pub fn min_jumps(nums: Vec<i32>) -> i32 {
+    pub fn min_jumps_navie(nums: Vec<i32>) -> i32 {
         let mut pre_processing = HashMap::new();
         nums.iter().for_each(|&num| {
             if !pre_processing.contains_key(&num) && Self::is_prime_3926(num) {
@@ -80,13 +80,13 @@ mod test {
 
     #[test]
     fn unit_test() {
-        let ret = Solution::min_jumps(vec![2,3,4,7,9]);
+        let ret = Solution::min_jumps_navie(vec![2,3,4,7,9]);
         assert_eq!(ret, 2)
     }
 
     #[test]
     fn unit_test2() {
-        let ret = Solution::min_jumps(vec![4,6,5,8]);
+        let ret = Solution::min_jumps_navie(vec![4,6,5,8]);
         assert_eq!(ret, 3)
     }
 }
