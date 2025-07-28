@@ -1,7 +1,7 @@
 // Utility function for printing vectors
 pub fn print_vec<T: std::fmt::Display>(vec: &Vec<T>) {
     for e in vec {
-        println!("{} \t", e);
+        print!("{} \t", e);
     }
 }
 
