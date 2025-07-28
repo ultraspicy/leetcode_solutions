@@ -1,4 +1,4 @@
-use std::{collections::{BTreeSet, HashMap, HashSet}, hash::Hash};
+use std::{collections::{BTreeSet, HashMap}};
 
 use super::Solution;
 
@@ -10,46 +10,60 @@ impl Solution {
         for i in 1..par.len() {
             graph.entry(par[i]).or_insert_with(Vec::new).push(i as i32);
         }
+        let mut path_sums = HashMap::new();
+        Self::dfs_to_populate_path_sum(&graph, &vals, &mut path_sums, 0, vals[0]);
 
-        // let mut path_sums = HashMap::new();
-        // let mut children_list = HashMap::new();
-        // Self::dfs_3590(0, &graph, &vals, &mut path_sums, &mut children_list);
+        // build result, also build a cache alongside
+        let mut ret = vec![];
+        let mut cache: HashMap<i32, BTreeSet<i32>> = HashMap::new();
 
-        // let mut ret = vec![];
-        // let mut cache: HashMap<i32, BTreeSet<i32>> = HashMap::new();
+        queries.iter().for_each(|query| {
+            let (node_id, kth) = (query[0], query[1]);
+            if cache.get(&node_id).is_none() {
+                Self::construct_ordered_set_for_node(&graph, &path_sums, node_id, &mut cache);
+            }
+            let default_query_result = -1;
+            ret.push(*cache.get(&node_id).unwrap().iter().nth(kth as usize - 1).unwrap_or(&default_query_result));
+        });
 
-        // queries.iter().for_each(|query| {
-        //     let (node_id, kth) = (query[0], query[1]);
-        // });
-        // ret
-
-        vec![]
+        ret
     }
 
-    // fn dfs_3590(current: i32, graph: &HashMap<i32, Vec<i32>>, vals: &Vec<i32>, path_sums:&mut HashMap<i32, i32>, children_list: &mut HashMap<i32, Vec<i32>>) {
-    //     if graph.get(&current). is_none() {
-    //         path_sums.insert(current, vals[current as usize]);
-    //         return;
-    //     }
+    fn construct_ordered_set_for_node(graph: &HashMap<i32, Vec<i32>>, path_sums: &HashMap<i32, i32>, node_id: i32, cache: &mut HashMap<i32, BTreeSet<i32>>) {
+        if graph.get(&node_id).is_none() {
+            // we already at leaf
+            let mut ordered_set = BTreeSet::new();
+            ordered_set.insert(path_sums.get(&node_id).copied().unwrap());
+            cache.insert(node_id, ordered_set);
+            return;
+        }
 
-    //     let mut self_val = vals[current as usize];
-    //     let mut children_vec = vec![];
+        let mut ordered_set = BTreeSet::new();
+        for &child in graph.get(&node_id).unwrap().iter() {
+            Self::construct_ordered_set_for_node(graph, path_sums, child, cache);
+            ordered_set.extend(cache.get(&child).unwrap());
+        }
+        ordered_set.insert(path_sums.get(&node_id).copied().unwrap());
+        cache.insert(node_id, ordered_set);
+    }
 
-    //     if let Some(children) = graph.get(&current) {
-    //         for next_child in children {
-    //             self_val = self_val ^ Self::dfs_3590(*next_child, graph, vals, path_sums, children_list);
-    //             children_vec.extend(children_list.get(next_child));
-    //         }
-    //         path_sums.insert(current, self_val);
-    //         children_list.insert(current, children_vec);
-    //     }
-    // }
+    fn dfs_to_populate_path_sum(graph: &HashMap<i32, Vec<i32>>, vals: &Vec<i32>, path_sums:&mut HashMap<i32, i32>, current_node: i32, current_xor: i32) {
+        path_sums.insert(current_node, current_xor);
+
+        if let Some(children) = graph.get(&current_node) {
+            children.iter().for_each(|&child| {
+                Self::dfs_to_populate_path_sum(graph, vals, path_sums, child, current_xor ^ vals[child as usize]);
+            });
+
+        }
+    }
+
 }
 // extend() Source mutability can be immutable reference, source after operation unchanged, slower
 // append() Must be &mut, Always emptied
-// BTreeSet, and nth_back()
-// is_none()
-// into() from tuple to map 
+// ordered_set -> BTreeSet, and nth_back()
+// Option -> is_none()
+// into() from tuple to map
 // copied() on enum, unwrap_or(-1)
 
 #[cfg(test)]
