@@ -71,3 +71,4 @@ pub mod problem_3629_prime_factor_look_up;
 pub mod problem_2044;
 pub mod problem_3627;
 pub mod problem_3628;
+pub mod problem_2411;
