@@ -1,7 +1,7 @@
 use super::Solution;
 
 impl Solution {
-    pub fn min_time(n: i32, edges: Vec<Vec<i32>>, k: i32) -> i32 {
+    pub fn min_time_x(n: i32, edges: Vec<Vec<i32>>, k: i32) -> i32 {
 
         #[derive(Debug)]
         struct DSU {
@@ -80,10 +80,10 @@ mod test {
 
     #[test]
     fn unit_test() {
-        let ret = Solution::min_time(2, vec![vec![0, 1, 3]], 2);
+        let ret = Solution::min_time_x(2, vec![vec![0, 1, 3]], 2);
         assert_eq!(ret, 3);
 
-        let ret = Solution::min_time(3, vec![vec![0, 1, 2], vec![1, 2, 4]], 3);
+        let ret = Solution::min_time_x(3, vec![vec![0, 1, 2], vec![1, 2, 4]], 3);
         assert_eq!(ret, 4)
     }
 }
