@@ -78,3 +78,4 @@ pub mod problem_3635;
 pub mod problem_3637;
 pub mod problem_3638;
 pub mod problem_3639;
+pub mod problem_3656;

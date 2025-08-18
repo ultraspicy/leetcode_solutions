@@ -2,7 +2,7 @@ use super::Solution;
 use std::collections::BTreeSet;
 
 impl Solution {
-    pub fn min_time(s: String, order: Vec<i32>, k: i32) -> i32 {
+    pub fn min_time(_s: String, order: Vec<i32>, k: i32) -> i32 {
         if order.len() <= 31 && 2_i32.pow(order.len() as u32) - 1 < k {
             return -1;
         }
