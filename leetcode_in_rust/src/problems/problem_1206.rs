@@ -19,10 +19,6 @@ struct ListNode {
     above: Option<Weak<RefCell<ListNode>>>,
 }
 
-/**
- * `&self` means the method takes an immutable reference.
- * If you need a mutable reference, change it to `&mut self` instead.
- */
 #[allow(dead_code)]
 impl Skiplist {
 
@@ -37,8 +33,8 @@ impl Skiplist {
         //     ];
 
         let mut dummy_heads  = vec![];
-        for i in 0..Self::LEVEL {
-            dummy_heads.push(Rc::new(RefCell::new(ListNode { val: (i as i32 *(-1) - 1), ..Default::default() })));
+        for i in 1..=Self::LEVEL {
+            dummy_heads.push(Rc::new(RefCell::new(ListNode { val: i as i32 *(-1), ..Default::default() })));
         }
 
         for i in 0..Self::LEVEL - 1 {
@@ -66,11 +62,7 @@ impl Skiplist {
                         if next_node.borrow().val <= target{
                             cur_node = next_node;
                         } else {
-                            let below = cur_node.borrow().below.clone();
-                            match below {
-                                Some(node_below) => cur_node = node_below,
-                                None => break,
-                            }
+                            break;
                         }
                     },
                     None => break,
@@ -119,8 +111,8 @@ impl Skiplist {
                 added = true;
             }
 
-            if cur_level == Self::LEVEL - 1 || rng_within_range || added {
-                // insert a new node
+            // insert a new node top-down
+            if cur_level == Self::LEVEL - 1 || rng_within_range || added {    
                 // deal with horizontal links
                 let new_node = Rc::new(RefCell::new(ListNode { val: num, ..Default::default() }));
                 let next_option = cur_node.borrow().next.clone();
@@ -137,7 +129,7 @@ impl Skiplist {
                     new_node.borrow_mut().above = Some(Rc::downgrade(&above_node));
                 }
                 prev_add = Some(new_node);
-                let below_opt = cur_node.borrow().clone().below.clone();
+                let below_opt = cur_node.borrow().below.clone();
                 match below_opt {
                     Some(below_node) => {
                         cur_node = below_node;
@@ -199,19 +191,18 @@ impl Skiplist {
 
         loop {
             let below = cur_node.borrow().below.clone();
-            if let Some(prev) = cur_node.borrow().clone().prev {
+            if let Some(prev) = cur_node.borrow().prev.clone() {
                 if let Some(prev_node) = prev.upgrade() {
-                    prev_node.borrow_mut().next = cur_node.borrow().clone().next;
+                    prev_node.borrow_mut().next = cur_node.borrow().next.clone();
                 }
 
-                if let Some(next_node) = cur_node.borrow().clone().next {
+                if let Some(next_node) = cur_node.borrow().next.clone() {
                     next_node.borrow_mut().prev = Some(prev);
                 }
             }
             if let Some(below_node) = below {
                 cur_node = below_node;
             } else {
-
                 break;
             }
         }
