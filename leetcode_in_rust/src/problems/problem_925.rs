@@ -27,7 +27,7 @@ impl Solution {
 
     fn slice_str(data: &str) -> Vec<String> {
         data.chars()
-            .group_by(|&x| x)
+            .chunk_by(|&x| x)
             .into_iter()
             .map(|(_key, group)| group.collect())
             .collect::<Vec<_>>()
