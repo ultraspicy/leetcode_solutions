@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+#[allow(dead_code)]
 struct MaxStack {
     index_to_number: BTreeMap<usize, i32>,
     num_to_indexes: BTreeMap<i32, Vec<usize>>,
@@ -11,6 +12,7 @@ struct MaxStack {
  * `&self` means the method takes an immutable reference.
  * If you need a mutable reference, change it to `&mut self` instead.
  */
+#[allow(dead_code)]
 impl MaxStack {
 
     fn new() -> Self {
