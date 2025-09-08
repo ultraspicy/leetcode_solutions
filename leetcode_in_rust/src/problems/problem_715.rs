@@ -1,26 +1,28 @@
 use std::collections::BTreeMap;
 
+#[allow(dead_code)]
 struct RangeModule {
     left_to_right: BTreeMap<i32, i32>,
     right_to_left: BTreeMap<i32, i32>,
 }
 
 
-/** 
+/**
  * `&self` means the method takes an immutable reference.
  * If you need a mutable reference, change it to `&mut self` instead.
  */
+#[allow(dead_code)]
 impl RangeModule {
 
     fn new() -> Self {
         RangeModule { left_to_right: BTreeMap::default(), right_to_left: BTreeMap::default() }
     }
-    
+
     fn add_range(&mut self, left: i32, right: i32) {
         let (mut ll, mut rr) = (-1, -1);
         match self.left_to_right.range(..left).next_back() {
             Some((&a, &b)) => {
-                ll = if b >= left { a } else { left }; 
+                ll = if b >= left { a } else { left };
             },
             None => {
                 ll = left;
@@ -39,18 +41,18 @@ impl RangeModule {
         // collect consumes the iterator, ending the borrow
         let to_remove = self.left_to_right
             .range(ll..)
-            .filter(|&(&k, &v)| {k <= rr})
+            .filter(|&(&k, &_)| {k <= rr})
             .map(|(&k, &v)| {(k,v)})
             .collect::<Vec<(i32, i32)>>();
         for (k, v) in to_remove {
             self.left_to_right.remove(&k);
             self.right_to_left.remove(&v);
         }
-       
+
         self.left_to_right.insert(ll, rr);
         self.right_to_left.insert(rr, ll);
     }
-    
+
     fn query_range(&self, left: i32, right: i32) -> bool {
         match self.left_to_right.range(..=left).next_back() {
             Some((&l, &r)) => {
@@ -61,7 +63,7 @@ impl RangeModule {
             },
         }
     }
-    
+
     fn remove_range(&mut self, left: i32, right: i32) {
         let to_remove = self.left_to_right
             .range(left..)
@@ -87,7 +89,7 @@ impl RangeModule {
                 // else this interval removed already
             },
             None => {
-                // still fine to remove from left 
+                // still fine to remove from left
             },
         }
 
@@ -134,7 +136,7 @@ mod test {
     fn unit_test() {
         let mut range_module = RangeModule::new();
         range_module.add_range(10, 20);
-       
+
         range_module.remove_range(14, 16);
         range_module.print();
         range_module.query_range(10, 14);

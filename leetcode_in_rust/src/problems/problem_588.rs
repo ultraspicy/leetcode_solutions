@@ -1,6 +1,7 @@
 use std::{collections::HashMap, collections::HashSet};
 
 #[derive(Default, Debug)]
+#[allow(dead_code)]
 struct FileSystem {
     directories: HashMap<String, HashSet<String>>,
     files: HashMap<String, String>,
@@ -10,6 +11,7 @@ struct FileSystem {
  * `&self` means the method takes an immutable reference.
  * If you need a mutable reference, change it to `&mut self` instead.
  */
+#[allow(dead_code)]
 impl FileSystem {
 
     fn new() -> Self {
