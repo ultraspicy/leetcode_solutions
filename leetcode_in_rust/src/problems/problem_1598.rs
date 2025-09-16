@@ -1,7 +1,7 @@
 use super::Solution;
 
 impl Solution {
-    pub fn min_operations(logs: Vec<String>) -> i32 {
+    pub fn min_operations_1598(logs: Vec<String>) -> i32 {
         logs.iter().map(|str| {
             match str.chars().nth(0) {
                 Some('.') => {
