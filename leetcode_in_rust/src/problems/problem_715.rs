@@ -6,7 +6,6 @@ struct RangeModule {
     right_to_left: BTreeMap<i32, i32>,
 }
 
-
 /**
  * `&self` means the method takes an immutable reference.
  * If you need a mutable reference, change it to `&mut self` instead.
@@ -19,24 +18,15 @@ impl RangeModule {
     }
 
     fn add_range(&mut self, left: i32, right: i32) {
-        let (mut ll, mut rr) = (-1, -1);
-        match self.left_to_right.range(..left).next_back() {
-            Some((&a, &b)) => {
-                ll = if b >= left { a } else { left };
-            },
-            None => {
-                ll = left;
-            },
-        }
+        let ll = match self.left_to_right.range(..left).next_back() {
+            Some((&a, &b)) if b >= left => a,
+            _ => left,
+        };
 
-        match self.right_to_left.range(right..).next() {
-            Some((&d, &c)) => {
-                rr = if c <= right { d } else { right };
-            },
-            None => {
-                rr = right;
-            },
-        }
+        let rr = match self.right_to_left.range(right..).next() {
+            Some((&d, &c)) if c <= right => d,
+            _ => right,
+        };
 
         // collect consumes the iterator, ending the borrow
         let to_remove = self.left_to_right
@@ -55,7 +45,7 @@ impl RangeModule {
 
     fn query_range(&self, left: i32, right: i32) -> bool {
         match self.left_to_right.range(..=left).next_back() {
-            Some((&l, &r)) => {
+            Some((&_l, &r)) => {
                 r >= right
             },
             None => {

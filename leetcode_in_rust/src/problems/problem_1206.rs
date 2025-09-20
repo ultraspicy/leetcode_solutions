@@ -3,6 +3,8 @@ use std::rc::{Rc, Weak};
 use rand::Rng;
 
 #[derive(Default, Debug, Clone)]
+
+#[allow(dead_code)]
 struct Skiplist {
     level: u8,
     dummy_heads: Vec<Rc<RefCell<ListNode>>>,

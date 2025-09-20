@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 struct Bank {
     balances: Vec<i64>,
 }
@@ -9,6 +7,8 @@ struct Bank {
  * `&self` means the method takes an immutable reference.
  * If you need a mutable reference, change it to `&mut self` instead.
  */
+
+#[allow(dead_code)]
 impl Bank {
 
     fn new(balance: Vec<i64>) -> Self {
