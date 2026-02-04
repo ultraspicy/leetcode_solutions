@@ -96,3 +96,5 @@ pub mod problem_2197;
 pub mod problem_1249;
 pub mod problem_408;
 pub mod problem_314;
+pub mod problem_3827;
+pub mod problem_3829;
