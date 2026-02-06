@@ -1,6 +1,5 @@
 use std::collections::VecDeque;
 use std::collections::HashSet;
-use std::hash::Hash;
 
 struct RideSharingSystem {
     drivers: VecDeque<i32>,
@@ -9,6 +8,7 @@ struct RideSharingSystem {
     requested_riders: HashSet<i32>,
 }
 
+#[allow(dead_code)]
 impl RideSharingSystem {
 
     fn new() -> Self {
