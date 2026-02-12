@@ -1,4 +1,4 @@
-use std::{collections::VecDeque, vec};
+use std::collections::VecDeque;
 
 use super::Solution;
 

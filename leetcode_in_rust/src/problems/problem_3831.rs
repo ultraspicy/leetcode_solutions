@@ -1,6 +1,6 @@
 use super::Solution;
 use std::rc::Rc;
-use std::cell::{Ref, RefCell};
+use std::cell::RefCell;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct TreeNode {
