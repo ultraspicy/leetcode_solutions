@@ -1,0 +1,4 @@
+[workspace]
+members = [
+    "leetcode_in_rust",
+]
