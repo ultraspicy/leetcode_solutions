@@ -1,4 +1,4 @@
-use std::{collections::{HashMap, HashSet}, hash::Hash};
+use std::collections::{HashMap, HashSet};
 
 use super::Solution;
 
@@ -63,17 +63,5 @@ impl Solution {
         ori.to_lowercase().chars().map(|ch| {
             if ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u' { 'a' } else { ch }
         }).collect::<String>()
-    }
-}
-
-
-#[cfg(test)]
-mod test {
-
-    use super::*;
-
-    #[test]
-    fn unit_test_vowel_replacement () {
-        
     }
 }
