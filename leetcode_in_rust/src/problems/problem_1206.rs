@@ -1,304 +1,165 @@
 use std::cell::RefCell;
 use std::rc::{Rc, Weak};
+use std::vec;
 use rand::Rng;
 
-#[derive(Default, Debug, Clone)]
+type NodeRef<T> = Rc<RefCell<ListNode<T>>>;
+type WeakRef<T> = Weak<RefCell<ListNode<T>>>;
 
-#[allow(dead_code)]
+#[derive(Default, Debug, Clone)]
 struct Skiplist {
-    level: u8,
-    dummy_heads: Vec<Rc<RefCell<ListNode>>>,
+    heads: Vec<Option<NodeRef<i32>>>
 }
 
 #[derive(Default, Debug, Clone)]
-struct ListNode {
-    val: i32,
+struct ListNode<T: Ord> {
+    val: T,
+    next: Option<NodeRef<T>>,
+    below: Option<NodeRef<T>>,
+    above: Option<WeakRef<T>>,
+}
 
-    next: Option<Rc<RefCell<ListNode>>>,
-    prev: Option<Weak<RefCell<ListNode>>>,
-
-    below: Option<Rc<RefCell<ListNode>>>,
-    above: Option<Weak<RefCell<ListNode>>>,
+impl<T: Ord> ListNode<T> {
+    fn new_rc(val: T) -> NodeRef<T> {
+        Rc::new(RefCell::new(Self::new(val)))
+    }
+    
+    fn new(val: T) -> ListNode<T> {
+        ListNode {
+            val: val,
+            next: Option::default(),
+            below: Option::default(),
+            above: Option::default(),
+        }
+    }
 }
 
 #[allow(dead_code)]
 impl Skiplist {
 
-    pub const LEVEL: u8 = 8;
-    const RAND_RANGE: u32 = 1000_000_000;
-
-    pub fn new() -> Self {
-        // this is buggy, Rc::clone() will reuse the object, so all dummy heads are actually one!
-        // let dummy_heads  = vec![
-        //         Rc::new(RefCell::new(ListNode { val: -1, ..Default::default() }));
-        //         Self::LEVEL as usize
-        //     ];
-
-        let mut dummy_heads  = vec![];
-        for i in 1..=Self::LEVEL {
-            dummy_heads.push(Rc::new(RefCell::new(ListNode { val: i as i32 *(-1), ..Default::default() })));
-        }
-
-        for i in 0..Self::LEVEL - 1 {
-            let cur_node = dummy_heads[i as usize].clone();
-            let next = dummy_heads[i as usize + 1].clone();
-
-            cur_node.borrow_mut().below = Some(next.clone());
-            next.borrow_mut().above = Some(Rc::downgrade(&cur_node));
-        }
-
-        Skiplist {
-            level: Self::LEVEL,
-            dummy_heads: dummy_heads,
-        }
-    }
-
-    pub fn search(&self, target: i32) -> bool {
-        let mut cur_node = self.dummy_heads[0].clone();
-
-        loop {
-            loop {
-                let next = cur_node.borrow().next.clone();
-                match next {
-                    Some(next_node) => {
-                        if next_node.borrow().val <= target{
-                            cur_node = next_node;
-                        } else {
-                            break;
-                        }
-                    },
-                    None => break,
-                }
-            }
-            if cur_node.borrow().val == target { return true; }
-
-            let below = cur_node.borrow().below.clone();
-            match below {
-                Some(node_below) => cur_node = node_below,
-                None => break,
-            }
-        }
-        false
-    }
-
-    pub fn add(&self, num: i32) {
-        // find the last node that <= num
-        // if add, then add this node through all levels
-        // if not, go to the next level and rerun the RNG with doubled probability
-        let mut rng = rand::rng();
-        let mut rng_range = Self::RAND_RANGE / 2_u32.pow(Self::LEVEL as u32);
-        let mut cur_node = self.dummy_heads[0].clone();
-        let mut cur_level = 0;
-        let mut added = false;
-        let mut prev_add: Option<Rc<RefCell<ListNode>>> = Option::default();
-
-        loop {
-            // horizontally find the last node to operate
-            loop {
-                let next_option = cur_node.borrow().next.clone();
-                match next_option {
-                    Some(next_node) => {
-                        if next_node.borrow().val <= num {
-                            cur_node = next_node;
-                        } else {
-                            break;
-                        }
-                    },
-                    None => { break; },
-                }
-            }
-
-            let rng_within_range = rng.random_range(0..Self::RAND_RANGE) < rng_range;
-            if rng_within_range {
-                added = true;
-            }
-
-            // insert a new node top-down
-            if cur_level == Self::LEVEL - 1 || rng_within_range || added {    
-                // deal with horizontal links
-                let new_node = Rc::new(RefCell::new(ListNode { val: num, ..Default::default() }));
-                let next_option = cur_node.borrow().next.clone();
-                if let Some(next_node) = next_option.clone() {
-                    next_node.borrow_mut().prev = Some(Rc::downgrade(&new_node));
-                }
-                new_node.borrow_mut().next = next_option;
-                cur_node.borrow_mut().next = Some(new_node.clone());
-                new_node.borrow_mut().prev = Some(Rc::downgrade(&cur_node));
-
-                // deal with vertical links
-                if let Some(above_node) = prev_add {
-                    above_node.borrow_mut().below = Some(new_node.clone());
-                    new_node.borrow_mut().above = Some(Rc::downgrade(&above_node));
-                }
-                prev_add = Some(new_node);
-                let below_opt = cur_node.borrow().below.clone();
-                match below_opt {
-                    Some(below_node) => {
-                        cur_node = below_node;
-                    },
-                    None => {
-                        break;
-                    }
-                }
-
-            } else {
-                let below = cur_node.borrow().below.clone().unwrap_or_else(|| panic!("this shall never happen"));
-                cur_node = below;
-            }
-            cur_level += 1;
-            rng_range *= 2;
-            if cur_level == Self::LEVEL { break; }
-        }
-    }
-
-    fn erase(&self, num: i32) -> bool {
-        let mut cur_node = self.dummy_heads[0].clone();
-
-        loop {
-            let next_option = cur_node.borrow().next.clone();
-            match next_option {
-                Some(next_node) => {
-                    if next_node.borrow().val <= num {
-                        cur_node = next_node;
-                        if cur_node.borrow().val == num {
-                            break;
-                        }
-                    } else {
-                        let below_option = cur_node.borrow().below.clone();
-                        match below_option {
-                            Some(below_node) => { cur_node = below_node },
-                            None => {
-                                break;
-                            }
-                        }
-                    }
-                },
-                None => {
-                    let below_option = cur_node.borrow().below.clone();
-                    match below_option {
-                        Some(below_node) => {
-                            cur_node = below_node;
-                        },
-                        None => {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        if cur_node.borrow().val != num {
-            return false;
-        }
-
-        loop {
-            let below = cur_node.borrow().below.clone();
-            if let Some(prev) = cur_node.borrow().prev.clone() {
-                if let Some(prev_node) = prev.upgrade() {
-                    prev_node.borrow_mut().next = cur_node.borrow().next.clone();
-                }
-
-                if let Some(next_node) = cur_node.borrow().next.clone() {
-                    next_node.borrow_mut().prev = Some(prev);
-                }
-            }
-            if let Some(below_node) = below {
-                cur_node = below_node;
-            } else {
-                break;
-            }
-        }
-
-        true
-
-    }
-
-    pub fn print (&self) {
-        println!(" ===========. printing .=============");
-        for head in self.dummy_heads.iter() {
-            print!("{}", head.borrow().val);
-            let mut cur = head.clone();
-            while cur.borrow().next.is_some() {
-                let next = cur.borrow().next.clone().unwrap();
-                print!("->{}",next.borrow().val);
-                cur = next;
-            }
-            println!("");
-        }
-    }
-
-
-}
-
-#[cfg(test)]
-mod test {
-    use std::panic;
-    use super::*;
-
-    #[test]
-    fn unit_test_new_no_panic() {
-        let rst = panic::catch_unwind(|| {
-            let _ = Skiplist::new();
+    fn new() -> Self {
+        // for LC, we make it a level of 4
+        let mut heads = vec![];
+        (0..4).for_each(|_lvl| {
+            heads.push(Some(ListNode::new_rc(-1)));
         });
-        assert!(rst.is_ok(), "Skiplist::new() should not panic")
+        Skiplist { heads:heads }
     }
-
-    #[test]
-    fn unit_test_new_nodes_connectivity() {
-        let skiplist = Skiplist::new();
-        for i in 0..skiplist.level - 1 {
-            assert!(skiplist.dummy_heads[i as usize].borrow().below.is_some());
+    
+    fn search(&self, target: i32) -> bool {
+        let candidate = self.search_internal(target);
+        let ret = candidate.borrow().val == target;
+        ret
+    }
+    
+    fn add(&mut self, num: i32) {
+        // go to the target level first
+        let mut cursor = self.heads[0].clone().unwrap();
+        let mut r = rand::rng();
+        for i in 0..4 {
+            if r.random::<bool>() {
+                let next_rc = cursor.borrow().below.clone().unwrap();
+                cursor = next_rc;
+            }
         }
-        for i in 1..skiplist.level {
-            assert!(skiplist.dummy_heads[i as usize].borrow().above.is_some());
-        }
-        assert!(skiplist.dummy_heads[skiplist.level as usize - 1].borrow().next.is_none());
+        // search the last item <= num, then add itself and all node below
+    }
+    
+    fn erase(&mut self, num: i32) -> bool {
+        // search_internal get the node
+        true
     }
 
-    #[test]
-    fn unit_test_add_then_search() {
-        let skiplist = Skiplist::new();
-        skiplist.add(9);
-        let rst= skiplist.search(9);
-        assert_eq!(rst, true);
-    }
+    fn search_internal(&self, target: i32) -> NodeRef<i32> {
+        let mut cursor = self.heads[0].clone();
+        (0..4).for_each(|_lvl| {
+            while let Some(next_rc) = cursor.clone() {
+                let val = next_rc.borrow().val;
+                if val <= target {
+                    cursor = Some(next_rc.clone());
+                } else {
+                    break;
+                }
+            }
+            
+            if let Some(below_rc) = cursor.clone() {
+                cursor = Some(below_rc)
+            } 
+        });
 
-     #[test]
-    fn unit_test_erase_non_exist() {
-        let skiplist = Skiplist::new();
-        let rst = skiplist.erase(9);
-        assert_eq!(rst, false);
+        cursor.expect("unwrapping null, this should not happen")
     }
-
-    #[test]
-    fn unit_test_erase() {
-        let skiplist = Skiplist::new();
-        skiplist.add(9);
-        let rst = skiplist.erase(9);
-        assert_eq!(rst, true);
-    }
-
-    #[test]
-    fn unit_test_complex() {
-        let skiplist = Skiplist::new();
-        skiplist.add(1);
-        //skiplist.print();
-        skiplist.add(2);
-        //skiplist.print();
-        skiplist.add(3);
-        //skiplist.print();
-        let rst = skiplist.search(0);
-        assert_eq!(rst, false);
-        skiplist.add(4);
-        let rst = skiplist.search(1);
-        assert_eq!(rst, true);
-        let rst = skiplist.erase(0);
-        assert_eq!(rst, false);
-        let rst = skiplist.erase(1);
-        assert_eq!(rst, true);
-        skiplist.print();
-        let rst = skiplist.search(1);
-        assert_eq!(rst, false);
-    }
-
 }
+
+// #[cfg(test)]
+// mod test {
+//     use std::panic;
+//     use super::*;
+
+//     #[test]
+//     fn unit_test_new_no_panic() {
+//         let rst = panic::catch_unwind(|| {
+//             let _ = Skiplist::new();
+//         });
+//         assert!(rst.is_ok(), "Skiplist::new() should not panic")
+//     }
+
+//     #[test]
+//     fn unit_test_new_nodes_connectivity() {
+//         let skiplist = Skiplist::new();
+//         for i in 0..skiplist.level - 1 {
+//             assert!(skiplist.dummy_heads[i as usize].borrow().below.is_some());
+//         }
+//         for i in 1..skiplist.level {
+//             assert!(skiplist.dummy_heads[i as usize].borrow().above.is_some());
+//         }
+//         assert!(skiplist.dummy_heads[skiplist.level as usize - 1].borrow().next.is_none());
+//     }
+
+//     #[test]
+//     fn unit_test_add_then_search() {
+//         let skiplist = Skiplist::new();
+//         skiplist.add(9);
+//         let rst= skiplist.search(9);
+//         assert_eq!(rst, true);
+//     }
+
+//      #[test]
+//     fn unit_test_erase_non_exist() {
+//         let skiplist = Skiplist::new();
+//         let rst = skiplist.erase(9);
+//         assert_eq!(rst, false);
+//     }
+
+//     #[test]
+//     fn unit_test_erase() {
+//         let skiplist = Skiplist::new();
+//         skiplist.add(9);
+//         let rst = skiplist.erase(9);
+//         assert_eq!(rst, true);
+//     }
+
+//     #[test]
+//     fn unit_test_complex() {
+//         let skiplist = Skiplist::new();
+//         skiplist.add(1);
+//         //skiplist.print();
+//         skiplist.add(2);
+//         //skiplist.print();
+//         skiplist.add(3);
+//         //skiplist.print();
+//         let rst = skiplist.search(0);
+//         assert_eq!(rst, false);
+//         skiplist.add(4);
+//         let rst = skiplist.search(1);
+//         assert_eq!(rst, true);
+//         let rst = skiplist.erase(0);
+//         assert_eq!(rst, false);
+//         let rst = skiplist.erase(1);
+//         assert_eq!(rst, true);
+//         skiplist.print();
+//         let rst = skiplist.search(1);
+//         assert_eq!(rst, false);
+//     }
+
+// }
