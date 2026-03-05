@@ -1,4 +1,4 @@
-use std::{collections::HashMap, hash::Hash, usize};
+use std::{collections::HashMap, usize};
 
 use super::Solution;
 

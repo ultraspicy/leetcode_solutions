@@ -1,21 +1,18 @@
-use std::{collections::{HashMap, HashSet}, hash::Hash};
-
-use itertools::Itertools;
+use std::collections::HashMap;
 
 struct FileSystem {
     kv_store: HashMap<String, i32>,
 }
 
-
 /**
  * `&self` means the method takes an immutable reference.
  * If you need a mutable reference, change it to `&mut self` instead.
  */
+#[allow(dead_code)]
 impl FileSystem {
 
     fn new() -> Self {
         Self { kv_store: HashMap::new() }
-
     }
 
     fn create_path(&mut self, path: String, value: i32) -> bool {
