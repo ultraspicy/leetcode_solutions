@@ -114,3 +114,4 @@ pub mod problem_966;
 pub mod problem_000;
 pub mod problem_762;
 pub mod problem_987;
+pub mod problem_1206_arena;
