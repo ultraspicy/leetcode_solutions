@@ -119,3 +119,5 @@ pub mod problem_1169;
 pub mod problem_1274;
 pub mod problem_1488;
 pub mod problem_3733;
+pub mod problem_3408;
+pub mod problem_146_no_smart_pointer;
