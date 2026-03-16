@@ -66,7 +66,7 @@ impl Skiplist {
         let mut cursor_idx = 0;
         let mut rng = rand::rng();
 
-        while rng.gen_range(0..space) > start_rng {
+        while rng.random_range(0..space) > start_rng {
             cursor_idx = self.arena[cursor_idx].below;
             start_rng = start_rng * 2;
         }
