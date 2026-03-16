@@ -2,12 +2,14 @@ use std::usize;
 
 use rand::Rng;
 
+#[allow(dead_code)]
 struct Skiplist {
     level: usize,
     arena: Vec<Node>,
 }
 
 #[derive(Default, Clone, Copy, Debug)]
+#[allow(dead_code)]
 struct Node {
     val: i32,
 
@@ -29,6 +31,7 @@ impl Node {
  * `&self` means the method takes an immutable reference.
  * If you need a mutable reference, change it to `&mut self` instead.
  */
+#[allow(dead_code)]
 impl Skiplist {
 
     fn new() -> Self {
@@ -61,7 +64,7 @@ impl Skiplist {
         let space = usize::MAX;
         let mut start_rng = space / (2usize.pow((self.level - 1) as u32));
         let mut cursor_idx = 0;
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         while rng.gen_range(0..space) > start_rng {
             cursor_idx = self.arena[cursor_idx].below;
@@ -170,8 +173,6 @@ impl Skiplist {
 
 #[cfg(test)]
 mod test {
-    use core::time;
-
     use super::*;
     use ntest::timeout;
 
@@ -190,7 +191,7 @@ mod test {
         let rst =  l.search(1);
         assert_eq!(true, rst);
 
-        let rst =  l.add(5);
+        let _rst =  l.add(5);
         let rst =  l.search(3);
         assert_eq!(true, rst);
         let rst =  l.search(6);
@@ -199,7 +200,7 @@ mod test {
 
     #[test]
     #[timeout(300)]
-    fn unit_test__2() {
+    fn unit_test_2() {
         let mut l = Skiplist::new();
         l.add(9);
         l.add(4);
