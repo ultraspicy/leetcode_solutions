@@ -118,3 +118,4 @@ pub mod problem_1206_arena;
 pub mod problem_1169;
 pub mod problem_1274;
 pub mod problem_1488;
+pub mod problem_3733;

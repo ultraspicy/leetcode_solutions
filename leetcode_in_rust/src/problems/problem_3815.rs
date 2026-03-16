@@ -1,4 +1,4 @@
-use std::{collections::{BinaryHeap, HashMap, HashSet}, hash::Hash};
+use std::collections::{BinaryHeap, HashMap};
 
 struct AuctionSystem {
     // <item_id, heap<(amount, user_id)>>
@@ -12,6 +12,7 @@ struct AuctionSystem {
  * `&self` means the method takes an immutable reference.
  * If you need a mutable reference, change it to `&mut self` instead.
  */
+#[allow(dead_code)]
 impl AuctionSystem {
 
     fn new() -> Self {
@@ -34,7 +35,7 @@ impl AuctionSystem {
     
     fn remove_bid(&mut self, user_id: i32, item_id: i32) {
         if let Some(item_id_then_amount) = self.active_bid.get_mut(&user_id) {
-            if let Some(&amount) = item_id_then_amount.get(&item_id) {
+            if let Some(&_amount) = item_id_then_amount.get(&item_id) {
                 item_id_then_amount.remove(&item_id);
             }
         }
