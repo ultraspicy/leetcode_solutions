@@ -2,7 +2,7 @@ use super::Solution;
 use std::collections::BTreeSet;
 
 impl Solution {
-    pub fn min_time(_s: String, order: Vec<i32>, k: i32) -> i32 {
+    pub fn min_time_3639(_s: String, order: Vec<i32>, k: i32) -> i32 {
         if order.len() <= 31 && 2_i32.pow(order.len() as u32) - 1 < k {
             return -1;
         }
@@ -38,13 +38,13 @@ mod test {
 
     #[test]
     fn unit_test() {
-        let ret = Solution::min_time(String::from("cat"), vec![0, 2, 1], 6);
+        let ret = Solution::min_time_3639(String::from("cat"), vec![0, 2, 1], 6);
         assert_eq!(ret, 2);
     }
 
     #[test]
     fn unit_test2() {
-        let ret = Solution::min_time(String::from("yzhh"), vec![2, 1, 0, 3], 10);
+        let ret = Solution::min_time_3639(String::from("yzhh"), vec![2, 1, 0, 3], 10);
         assert_eq!(ret, 3);
     }
 }
