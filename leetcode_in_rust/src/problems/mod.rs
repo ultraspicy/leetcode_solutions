@@ -1,5 +1,6 @@
 pub struct Solution {}
 
+pub mod interview_question_bank;
 pub mod problem_3238;
 pub mod problem_3239;
 pub mod problem_3240;
@@ -125,3 +126,4 @@ pub mod problem_1975;
 pub mod problem_3531;
 pub mod problem_3499;
 pub mod problem_3494;
+pub mod problem_981;
