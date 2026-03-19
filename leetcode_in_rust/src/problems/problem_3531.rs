@@ -7,7 +7,7 @@ impl Solution {
     // pub fn method_name(params) -> return_type {
     //     unimplemented!()
     // }
-    pub fn count_covered_buildings(n: i32, buildings: Vec<Vec<i32>>) -> i32 {
+    pub fn count_covered_buildings(_n: i32, buildings: Vec<Vec<i32>>) -> i32 {
         let mut y_min: HashMap<i32, i32> = HashMap::new(); // given x as key, what is the smallest y
         let mut y_max: HashMap<i32, i32> = HashMap::new();
         let mut x_min: HashMap<i32, i32> = HashMap::new(); // given y as key, what is the smallest x
