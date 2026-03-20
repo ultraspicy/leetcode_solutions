@@ -24,22 +24,16 @@ impl TimeMap {
     }
 
     fn get(&self, key: String, timestamp: i32) -> String {
-        if let Some(tree_map) = self.map.get(&key) {
-            if let Some((_k, v)) = tree_map.range((Unbounded, Included(&timestamp))).next_back() {
-                v.clone()
-            } else {
-                String::from("")
-            }
-        } else {
-            String::from("")
-        }
+        self.map.get(&key)
+            .and_then(|tree_map| tree_map.range((Unbounded, Included(&timestamp))).next_back()) // use and_then() since next_back() could fail
+            .map(|(_k, v)| v.clone()).unwrap_or_default() // use map since v.clone() won't fail
     }
 }
 
 #[cfg(test)]
 mod application {
     use super::*;
-    use std::{sync::{Arc, Mutex}, thread};
+    use std::{sync::{Arc, Mutex, RwLock}, thread::{self, JoinHandle}};
 
     #[test]
     fn multithread_mutex() -> Result<(), Box<dyn std::error::Error>> {
@@ -47,7 +41,7 @@ mod application {
 
         let guard_rc1 = time_map_rc.clone();
         let h1 = thread::spawn( move || -> Result<(), String>  { // 'static means the closure contains no borrowed references //  The spawned thread can outlive the function that spawned it
-            let mut guard = guard_rc1.lock().map_err(|e| e.to_string())?; // MutexGuard implements DerefMut, so you can get &mut T through it. 
+            let mut guard = guard_rc1.lock().map_err(|e| e.to_string())?; // MutexGuard implements DerefMut, so you can get &mut T through it.
             guard.set(String::from("foo"), String::from("bar"), 1);
             Ok(())
         });
@@ -71,6 +65,35 @@ mod application {
             .map_err(|e| -> Box<dyn std::error::Error> {e.into()})?;
         Ok(())
     }
+
+    #[test]
+    fn multithread_rwlock() -> Result<(), Box<dyn std::error::Error>> {
+        let rc = Arc::new(RwLock::new(TimeMap::new()));
+
+        let (rc1, rc2, rc3) = (rc.clone(), rc.clone(), rc.clone());
+        let h1 = thread::spawn( move || {
+            let mut guard = rc1.write().unwrap();
+            guard.set(String::from("foo"), String::from("bar"), 1);
+        });
+        let h2 = thread::spawn( move || {
+            let mut guard = rc2.write().unwrap();
+            guard.set(String::from("foo"), String::from("bar"), 1);
+        });
+        let h3 = thread::spawn( move || {
+            let guard = rc3.read().unwrap();
+            guard.get(String::from("foo"), 1);
+        });
+
+        join_result_map(h1, "h1 panic")?;
+        join_result_map(h2, "h2 panic")?;
+        join_result_map(h3, "h3 panic")?;
+        Ok(())
+    }
+
+    fn join_result_map<T>(h: JoinHandle<T>, error_msg: &str) -> Result<T, String> {
+        h.join()
+            .map_err(|e| e.downcast_ref::<&str>().map(|s| s.to_string()).unwrap_or(error_msg.to_string()))
+    }
 }
 
 // follow up: Concurrent Solution
@@ -84,9 +107,9 @@ mod application {
 
 // Mutex vs RwLock
 
-// MutexWrite-heavy workloads — if you're mostly writing, RwLock's overhead of tracking reader counts etc. is wasted. 
+// MutexWrite-heavy workloads — if you're mostly writing, RwLock's overhead of tracking reader counts etc. is wasted.
 // Every thread waiting for a Mutex is in the same queue, regardless of what they want to do with the data
-// 
+//
 // Simplicity/correctness — RwLock has a subtle failure mode called writer starvation, where a flood of readers can indefinitely block a waiting writer. Mutex has no such issue
 // Raw overhead — Mutex has a simpler internal structure, so per-lock-operation it's slightly cheaper
 // A writer has to wait for all current readers to finish. But while it's waiting, new readers can keep arriving and being let in
