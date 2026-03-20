@@ -1,6 +1,6 @@
 use std::usize;
 
-use rand::Rng;
+use rand::RngExt;
 
 #[allow(dead_code)]
 struct Skiplist {

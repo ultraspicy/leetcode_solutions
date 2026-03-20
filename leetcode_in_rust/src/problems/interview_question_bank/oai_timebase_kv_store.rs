@@ -1,8 +1,10 @@
 use std::collections::{BTreeMap, HashMap};
 use std::ops::Bound::*;
+use serde::{Serialize, Deserialize};
 
 #[allow(dead_code)]
-struct TimeMap {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TimeMap {
     map: HashMap<String, BTreeMap<i32, String>>
 }
 
@@ -13,17 +15,17 @@ struct TimeMap {
 #[allow(dead_code)]
 impl TimeMap {
 
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self{
             map: HashMap::new(),
         }
     }
 
-    fn set(&mut self, key: String, value: String, timestamp: i32) {
+    pub fn set(&mut self, key: String, value: String, timestamp: i32) {
         self.map.entry(key).or_default().insert(timestamp, value);
     }
 
-    fn get(&self, key: String, timestamp: i32) -> String {
+    pub fn get(&self, key: String, timestamp: i32) -> String {
         self.map.get(&key)
             .and_then(|tree_map| tree_map.range((Unbounded, Included(&timestamp))).next_back()) // use and_then() since next_back() could fail
             .map(|(_k, v)| v.clone()).unwrap_or_default() // use map since v.clone() won't fail

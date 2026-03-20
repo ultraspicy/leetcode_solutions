@@ -1,8 +1,7 @@
 use std::cell::RefCell;
 use std::rc::{Rc, Weak};
 use std::vec;
-use rand::Rng;
-
+use rand::RngExt;
 type NodeRef<T> = Rc<RefCell<ListNode<T>>>;
 type WeakRef<T> = Weak<RefCell<ListNode<T>>>;
 
