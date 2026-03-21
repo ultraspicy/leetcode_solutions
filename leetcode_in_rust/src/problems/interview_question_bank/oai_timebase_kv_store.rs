@@ -5,7 +5,7 @@ use serde::{Serialize, Deserialize};
 #[allow(dead_code)]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TimeMap {
-    map: HashMap<String, BTreeMap<i32, String>>
+    pub map: HashMap<String, BTreeMap<i32, String>>
 }
 
 /**
